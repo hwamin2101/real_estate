@@ -286,8 +286,7 @@ export const createProperty = async (
 
     res.status(201).json(newProperty);
   } catch (err: any) {
-    res
-      .status(500)
-      .json({ message: `Error creating property: ${err.message}` });
+    console.error("Error creating property:", err); // Thêm dòng này
+    res.status(500).json({ message: `Error creating property: ${err.message}` });
   }
 };
