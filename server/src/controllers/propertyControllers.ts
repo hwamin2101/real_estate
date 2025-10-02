@@ -9,7 +9,7 @@ import axios from "axios";
 const prisma = new PrismaClient();
 
 const s3Client = new S3Client({
-  region: process.env.AWS_REGION,
+  region: process.env.APP_AWS_REGION,
 });
 
 export const getProperties = async (
