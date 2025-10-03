@@ -10,6 +10,10 @@ const prisma = new PrismaClient();
 
 const s3Client = new S3Client({
   region: process.env.APP_AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
 });
 
 export const getProperties = async (
@@ -287,6 +291,8 @@ export const createProperty = async (
     res.status(201).json(newProperty);
   } catch (err: any) {
     console.error("Error creating property:", err); // Thêm dòng này
-    res.status(500).json({ message: `Error creating property: ${err.message}` });
+    res
+    .status(500)
+    .json({ message: `Error creating property: ${err.message}` });
   }
 };

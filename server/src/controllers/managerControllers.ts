@@ -20,6 +20,7 @@ export const getManager = async (
       res.status(404).json({ message: "Manager not found" });
     }
   } catch (error: any) {
+    console.error("Error retrieving manager:", error);
     res
       .status(500)
       .json({ message: `Error retrieving manager: ${error.message}` });
