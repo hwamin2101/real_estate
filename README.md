@@ -30,32 +30,22 @@ This project is a web-based platform for apartment rental services, connecting t
 2. **Clone the Repository**:
    ```bash
    git clone <repository-url>
-   cd apartment-rental-service
+   cd real_estate
    ```
 3. **Install Dependencies**:
    ```bash
    npm install
    ```
-4. **Configure Environment**:
-   * Set up `.env` file with AWS credentials, Stripe API key, and database configurations.
-   * Example `.env`:
-     ```bash
-     AWS_ACCESS_KEY_ID=<your-access-key>
-     AWS_SECRET_ACCESS_KEY=<your-secret-key>
-     COGNITO_USER_POOL_ID=<your-user-pool-id>
-     RDS_DATABASE_URL=<your-rds-url>
-     S3_BUCKET_NAME=<your-s3-bucket>
-     STRIPE_SECRET_KEY=<your-stripe-key>
-     ```
-5. **Run Locally**:
+4. **Run Locally**:
    ```bash
    npm run dev
    ```
    Access the app at http://localhost:3000.
-6. **Deploy to AWS**:
+5. **Deploy to AWS**:
    * Build Docker images for microservices.
    * Deploy to AWS ECS or EC2 using AWS CLI or Management Console.
    * Configure AWS API Gateway and CloudFront for frontend.
+
 
 
 
