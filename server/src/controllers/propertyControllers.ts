@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
-import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClient, Prisma, Amenity } from "@prisma/client";
 import { wktToGeoJSON } from "@terraformer/wkt";
 import { S3Client } from "@aws-sdk/client-s3";
 import { Location } from "@prisma/client";
 import { Upload } from "@aws-sdk/lib-storage";
 import axios from "axios";
+
 
 const prisma = new PrismaClient();
 
@@ -83,10 +84,24 @@ export const getProperties = async (
       );
     }
 
-    if (amenities && amenities !== "any") {
-      const amenitiesArray = (amenities as string).split(",");
-      whereConditions.push(Prisma.sql`p.amenities @> ${amenitiesArray}`);
-    }
+if (amenities && amenities !== "any") {
+  const amenitiesArray = (amenities as string)
+    .split(",")
+    .map((a) => a.trim());
+
+  const validAmenities = amenitiesArray.filter((a) =>
+    Object.values(Amenity).includes(a as any)
+  );
+
+  if (validAmenities.length > 0) {
+    whereConditions.push(
+      Prisma.sql`p.amenities @> ${validAmenities}::"Amenity"[]`
+    );
+  }
+}
+
+
+
 
     if (availableFrom && availableFrom !== "any") {
       const availableFromDate =
@@ -265,14 +280,35 @@ export const createProperty = async (
         photoUrls,
         locationId: location.id,
         managerCognitoId,
-        amenities:
-          typeof propertyData.amenities === "string"
-            ? propertyData.amenities.split(",")
-            : [],
-        highlights:
-          typeof propertyData.highlights === "string"
-            ? propertyData.highlights.split(",")
-            : [],
+    amenities: (() => {
+      if (Array.isArray(propertyData.amenities)) return propertyData.amenities;
+      if (typeof propertyData.amenities === "string") {
+        try {
+          const parsed = JSON.parse(propertyData.amenities);
+          if (Array.isArray(parsed)) return parsed;
+          return propertyData.amenities.split(",").map((a: string) => a.replace(/[\[\]\"]/g, "").trim());
+        } catch {
+          return propertyData.amenities.split(",").map((a: string) => a.replace(/[\[\]\"]/g, "").trim());
+        }
+      }
+      return [];
+    })(),
+
+
+     highlights: (() => {
+      if (Array.isArray(propertyData.highlights)) return propertyData.highlights;
+      if (typeof propertyData.highlights === "string") {
+        try {
+          const parsed = JSON.parse(propertyData.highlights);
+          if (Array.isArray(parsed)) return parsed;
+          return propertyData.highlights.split(",").map((h: string) => h.replace(/[\[\]\"]/g, "").trim());
+        } catch {
+          return propertyData.highlights.split(",").map((h: string) => h.replace(/[\[\]\"]/g, "").trim());
+        }
+      }
+      return [];
+    })(),
+
         isPetsAllowed: propertyData.isPetsAllowed === "true",
         isParkingIncluded: propertyData.isParkingIncluded === "true",
         pricePerMonth: parseFloat(propertyData.pricePerMonth),
