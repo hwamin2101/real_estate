@@ -32,6 +32,8 @@ export const applicationSchema = z.object({
   email: z.string().email("Invalid email address"),
   phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
   message: z.string().optional(),
+  startDate: z.string().optional(), // Thêm trường ngày bắt đầu
+  endDate: z.string().optional(),   // Thêm trường ngày kết thúc
 });
 
 export type ApplicationFormData = z.infer<typeof applicationSchema>;

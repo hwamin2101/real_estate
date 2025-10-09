@@ -1,3 +1,5 @@
+
+
 import React from "react";
 import {
   ControllerRenderProps,
@@ -57,6 +59,7 @@ interface FormFieldProps {
   multiple?: boolean;
   isIcon?: boolean;
   initialValue?: string | number | boolean | string[];
+  readOnly?: boolean; // Thêm prop readOnly
 }
 
 export const CustomFormField: React.FC<FormFieldProps> = ({
@@ -73,6 +76,7 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
   multiple = false,
   isIcon = false,
   initialValue,
+  readOnly = false, // Giá trị mặc định là false
 }) => {
   const { control } = useFormContext();
 
@@ -87,6 +91,7 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
             {...field}
             rows={3}
             className={`border-gray-200 p-4 ${inputClassName}`}
+            readOnly={readOnly || disabled} // Thêm readOnly
           />
         );
       case "select":
@@ -95,9 +100,11 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
             value={field.value || (initialValue as string)}
             defaultValue={field.value || (initialValue as string)}
             onValueChange={field.onChange}
+            disabled={disabled}
           >
             <SelectTrigger
               className={`w-full border-gray-200 p-4 ${inputClassName}`}
+              disabled={disabled}
             >
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
@@ -122,6 +129,7 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
               onCheckedChange={field.onChange}
               id={name}
               className={`text-customgreys-dirtyGrey ${inputClassName}`}
+              disabled={disabled}
             />
             <FormLabel htmlFor={name} className={labelClassName}>
               {label}
@@ -136,9 +144,10 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
               const files = fileItems.map((fileItem) => fileItem.file);
               field.onChange(files);
             }}
-            allowMultiple={true}
+            allowMultiple={multiple}
             labelIdle={`Drag & Drop your images or <span class="filepond--label-action">Browse</span>`}
             credits={false}
+            disabled={disabled}
           />
         );
       case "number":
@@ -149,6 +158,7 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
             {...field}
             className={`border-gray-200 p-4 ${inputClassName}`}
             disabled={disabled}
+            readOnly={readOnly} // Thêm readOnly
           />
         );
       case "multi-input":
@@ -158,6 +168,7 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
             control={control}
             placeholder={placeholder}
             inputClassName={inputClassName}
+            disabled={disabled}
           />
         );
       default:
@@ -168,6 +179,8 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
             {...field}
             className={`border-gray-200 p-4 ${inputClassName}`}
             disabled={disabled}
+            readOnly={readOnly} // Thêm readOnly
+            
           />
         );
     }
@@ -210,11 +223,13 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
     />
   );
 };
+
 interface MultiInputFieldProps {
   name: string;
   control: any;
   placeholder?: string;
   inputClassName?: string;
+  disabled?: boolean; // Thêm disabled cho MultiInputField
 }
 
 const MultiInputField: React.FC<MultiInputFieldProps> = ({
@@ -222,6 +237,7 @@ const MultiInputField: React.FC<MultiInputFieldProps> = ({
   control,
   placeholder,
   inputClassName,
+  disabled = false,
 }) => {
   const { fields, append, remove } = useFieldArray({
     control,
@@ -241,31 +257,36 @@ const MultiInputField: React.FC<MultiInputFieldProps> = ({
                   {...field}
                   placeholder={placeholder}
                   className={`flex-1 border-none bg-customgreys-darkGrey p-4 ${inputClassName}`}
+                  disabled={disabled}
                 />
               </FormControl>
             )}
           />
-          <Button
-            type="button"
-            onClick={() => remove(index)}
-            variant="ghost"
-            size="icon"
-            className="text-customgreys-dirtyGrey"
-          >
-            <X className="w-4 h-4" />
-          </Button>
+          {!disabled && (
+            <Button
+              type="button"
+              onClick={() => remove(index)}
+              variant="ghost"
+              size="icon"
+              className="text-customgreys-dirtyGrey"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          )}
         </div>
       ))}
-      <Button
-        type="button"
-        onClick={() => append("")}
-        variant="outline"
-        size="sm"
-        className="mt-2 text-customgreys-dirtyGrey"
-      >
-        <Plus className="w-4 h-4 mr-2" />
-        Add Item
-      </Button>
+      {!disabled && (
+        <Button
+          type="button"
+          onClick={() => append("")}
+          variant="outline"
+          size="sm"
+          className="mt-2 text-customgreys-dirtyGrey"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Add Item
+        </Button>
+      )}
     </div>
   );
 };

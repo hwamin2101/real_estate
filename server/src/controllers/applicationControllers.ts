@@ -1,3 +1,4 @@
+
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 
@@ -8,6 +9,7 @@ export const listApplications = async (
   res: Response
 ): Promise<void> => {
   try {
+    console.log("Query Params:", req.query); // Gỡ lỗi query parameters
     const { userId, userType } = req.query;
 
     let whereClause = {};
@@ -15,13 +17,23 @@ export const listApplications = async (
     if (userId && userType) {
       if (userType === "tenant") {
         whereClause = { tenantCognitoId: String(userId) };
+        console.log("Where Clause for tenant:", whereClause); // Gỡ lỗi
       } else if (userType === "manager") {
         whereClause = {
           property: {
             managerCognitoId: String(userId),
           },
         };
+        console.log("Where Clause for manager:", whereClause); // Gỡ lỗi
+      } else {
+        console.log("Invalid userType:", userType); // Gỡ lỗi
+        res.status(400).json({ message: "Invalid userType" });
+        return;
       }
+    } else {
+      console.log("Missing userId or userType"); // Gỡ lỗi
+      res.status(400).json({ message: "Missing userId or userType" });
+      return;
     }
 
     const applications = await prisma.application.findMany({
@@ -34,8 +46,14 @@ export const listApplications = async (
           },
         },
         tenant: true,
+        lease: true, // Đảm bảo bao gồm lease
       },
+    }).catch((err) => {
+      console.error("Database query error:", err); // Gỡ lỗi
+      throw err;
     });
+
+    console.log("Applications found:", applications.length); // Gỡ lỗi
 
     function calculateNextPaymentDate(startDate: Date): Date {
       const today = new Date();
@@ -48,15 +66,20 @@ export const listApplications = async (
 
     const formattedApplications = await Promise.all(
       applications.map(async (app) => {
-        const lease = await prisma.lease.findFirst({
-          where: {
-            tenant: {
-              cognitoId: app.tenantCognitoId,
+        let lease = null;
+        try {
+          lease = await prisma.lease.findFirst({
+            where: {
+              tenant: {
+                cognitoId: app.tenantCognitoId,
+              },
+              propertyId: app.propertyId,
             },
-            propertyId: app.propertyId,
-          },
-          orderBy: { startDate: "desc" },
-        });
+            orderBy: { startDate: "desc" },
+          });
+        } catch (err) {
+          console.error("Error finding lease for app:", app.id, err); // Gỡ lỗi
+        }
 
         return {
           ...app,
@@ -75,8 +98,10 @@ export const listApplications = async (
       })
     );
 
+    console.log("Formatted Applications:", formattedApplications); // Gỡ lỗi
     res.json(formattedApplications);
   } catch (error: any) {
+    console.error("Error in listApplications:", error); // Gỡ lỗi
     res
       .status(500)
       .json({ message: `Error retrieving applications: ${error.message}` });
@@ -97,7 +122,11 @@ export const createApplication = async (
       email,
       phoneNumber,
       message,
+      startDate, // Lấy từ form
+      endDate,   // Lấy từ form
     } = req.body;
+
+    console.log("Received Request Body:", req.body); // Gỡ lỗi
 
     const property = await prisma.property.findUnique({
       where: { id: propertyId },
@@ -110,13 +139,11 @@ export const createApplication = async (
     }
 
     const newApplication = await prisma.$transaction(async (prisma) => {
-      // Create lease first
+      // Create lease with default values (will be updated when approved)
       const lease = await prisma.lease.create({
         data: {
-          startDate: new Date(), // Today
-          endDate: new Date(
-            new Date().setFullYear(new Date().getFullYear() + 1)
-          ), // 1 year from today
+          startDate: new Date(), // Default, sẽ cập nhật khi approved
+          endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)), // Default
           rent: property.pricePerMonth,
           deposit: property.securityDeposit,
           property: {
@@ -128,7 +155,7 @@ export const createApplication = async (
         },
       });
 
-      // Then create application with lease connection
+      // Create application with startDate and endDate from form
       const application = await prisma.application.create({
         data: {
           applicationDate: new Date(applicationDate),
@@ -137,6 +164,8 @@ export const createApplication = async (
           email,
           phoneNumber,
           message,
+          startDate: startDate ? new Date(startDate) : null, // Lưu ngày từ form
+          endDate: endDate ? new Date(endDate) : null,       // Lưu ngày từ form
           property: {
             connect: { id: propertyId },
           },
@@ -179,6 +208,7 @@ export const updateApplicationStatus = async (
       include: {
         property: true,
         tenant: true,
+        lease: true, // Bao gồm lease để kiểm tra
       },
     });
 
@@ -190,10 +220,8 @@ export const updateApplicationStatus = async (
     if (status === "Approved") {
       const newLease = await prisma.lease.create({
         data: {
-          startDate: new Date(),
-          endDate: new Date(
-            new Date().setFullYear(new Date().getFullYear() + 1)
-          ),
+          startDate: application.startDate || new Date(), // Sử dụng startDate từ Application
+          endDate: application.endDate || new Date(new Date().setFullYear(new Date().getFullYear() + 1)), // Sử dụng endDate từ Application
           rent: application.property.pricePerMonth,
           deposit: application.property.securityDeposit,
           propertyId: application.propertyId,
