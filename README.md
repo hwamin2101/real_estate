@@ -1,4 +1,3 @@
-﻿# real_estate
 # Apartment Rental Service Website
 
 ## Overview
@@ -57,6 +56,7 @@ This project is a web-based platform for apartment rental services, connecting t
    * Build Docker images for microservices.
    * Deploy to AWS ECS or EC2 using AWS CLI or Management Console.
    * Configure AWS API Gateway and CloudFront for frontend.
+
 
 
 
