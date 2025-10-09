@@ -1,3 +1,4 @@
+
 import { Mail, MapPin, PhoneCall } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
@@ -21,9 +22,15 @@ const ApplicationCard = ({
   const contactPerson =
     userType === "manager" ? application.tenant : application.manager;
 
+  const formatDate = (date: Date | string | undefined) => {
+    if (!date) return "N/A";
+    const d = new Date(date);
+    return d.toLocaleDateString("en-CA", { timeZone: "Asia/Ho_Chi_Minh" }); // Định dạng YYYY-MM-DD
+  };
+
   return (
     <div className="border rounded-xl overflow-hidden shadow-sm bg-white mb-4">
-      <div className="flex flex-col lg:flex-row  items-start lg:items-center justify-between px-6 md:px-4 py-6 gap-6 lg:gap-4">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between px-6 md:px-4 py-6 gap-6 lg:gap-4">
         {/* Property Info Section */}
         <div className="flex flex-col lg:flex-row gap-5 w-full lg:w-auto">
           <Image
@@ -69,16 +76,16 @@ const ApplicationCard = ({
             <hr className="mt-3" />
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">Start Date:</span>{" "}
-            {new Date(application.lease?.startDate).toLocaleDateString()}
+            <span className="text-gray-500">Start Date:</span>
+            <span>{formatDate(application.startDate)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">End Date:</span>{" "}
-            {new Date(application.lease?.endDate).toLocaleDateString()}
+            <span className="text-gray-500">End Date:</span>
+            <span>{formatDate(application.endDate)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">Next Payment:</span>{" "}
-            {new Date(application.lease?.nextPaymentDate).toLocaleDateString()}
+            <span className="text-gray-500">Next Payment:</span>
+            <span>{formatDate(application.lease?.nextPaymentDate)}</span>
           </div>
         </div>
 
