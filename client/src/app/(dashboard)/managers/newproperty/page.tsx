@@ -26,8 +26,8 @@ const NewProperty = () => {
       isPetsAllowed: true,
       isParkingIncluded: true,
       photoUrls: [],
-      amenities: "",
-      highlights: "",
+      amenities: [],
+      highlights: [],
       beds: 1,
       baths: 1,
       squareFeet: 1000,
@@ -170,7 +170,7 @@ const NewProperty = () => {
                 <CustomFormField
                   name="amenities"
                   label="Amenities"
-                  type="select"
+                  type="multiselect"
                   options={Object.keys(AmenityEnum).map((amenity) => ({
                     value: amenity,
                     label: amenity,
@@ -179,7 +179,7 @@ const NewProperty = () => {
                 <CustomFormField
                   name="highlights"
                   label="Highlights"
-                  type="select"
+                  type="multiselect"
                   options={Object.keys(HighlightEnum).map((highlight) => ({
                     value: highlight,
                     label: highlight,
