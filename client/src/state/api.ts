@@ -275,15 +275,54 @@ export const api = createApi({
       },
     }),
 
-    getPropertyLeases: build.query<Lease[], number>({
-      query: (propertyId) => `properties/${propertyId}/leases`,
-      providesTags: ["Leases"],
-      async onQueryStarted(_, { queryFulfilled }) {
-        await withToast(queryFulfilled, {
-          error: "Failed to fetch property leases.",
-        });
-      },
-    }),
+    // getPropertyLeases: build.query<Lease[], number>({
+    //   query: (propertyId) => `properties/${propertyId}/leases`,
+    //   providesTags: ["Leases"],
+    //   async onQueryStarted(_, { queryFulfilled }) {
+    //     await withToast(queryFulfilled, {
+    //       error: "Failed to fetch property leases.",
+    //     });
+    //   },
+    // }),
+
+getPropertyLeases: build.query<Lease[], number>({
+  async queryFn(propertyId, _api, _extra, baseQuery) {
+    try {
+      const session = await fetchAuthSession();
+      const { idToken } = session.tokens ?? {};
+      const userId = idToken?.payload["sub"]; // id Cognito duy nhất
+      const userType = idToken?.payload["custom:role"]; // “manager” hoặc “tenant”
+
+      if (!userId || !userType) {
+        return { error: { status: 400, data: "Missing user information" } };
+      }
+
+      const result = await baseQuery(`applications?userId=${userId}&userType=${userType}`);
+      if (result.error) return { error: result.error };
+
+      const data = (result.data as any[]).filter(
+        (app) => app.property.id === propertyId && app.lease
+      );
+
+      return {
+        data: data.map((app) => ({
+          id: app.lease.id,
+          startDate: app.lease.startDate,
+          endDate: app.lease.endDate,
+          rent: app.lease.rent,
+          tenant: app.tenant,
+          property: app.property,
+        })),
+      };
+    } catch (err) {
+      return { error: { status: 500, data: "Failed to fetch user session" } };
+    }
+  },
+}),
+
+
+
+
 
     getPayments: build.query<Payment[], number>({
       query: (leaseId) => `leases/${leaseId}/payments`,
