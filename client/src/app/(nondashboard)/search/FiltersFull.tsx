@@ -8,7 +8,8 @@ import { cleanParams, cn, formatEnumString } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
-import { AmenityIcons, PropertyTypeIcons } from "@/lib/constants";
+import { AmenityIcons, PropertyTypeIcons,  PropertyTypeLabels } from "@/lib/constants";
+import {AmenityLabels,PropertyTypeEnum,} from "../../../lib/constants";
 import { Slider } from "@/components/ui/slider";
 import {
   Select,
@@ -81,7 +82,7 @@ const FiltersFull = () => {
         }));
       }
     } catch (err) {
-      console.error("Error search location:", err);
+      console.error("Lỗi khi tìm kiếm vị trí:", err);
     }
   };
 
@@ -92,7 +93,7 @@ const FiltersFull = () => {
       <div className="flex flex-col space-y-6">
         {/* Location */}
         <div>
-          <h4 className="font-bold mb-2">Location</h4>
+          <h4 className="font-bold mb-2">Vị trí</h4>
           <div className="flex items-center">
             <Input
               placeholder="Enter location"
@@ -116,7 +117,7 @@ const FiltersFull = () => {
 
         {/* Property Type */}
         <div>
-          <h4 className="font-bold mb-2">Property Type</h4>
+          <h4 className="font-bold mb-2">Loại căn hộ</h4>
           <div className="grid grid-cols-2 gap-4">
             {Object.entries(PropertyTypeIcons).map(([type, Icon]) => (
               <div
@@ -135,7 +136,8 @@ const FiltersFull = () => {
                 }
               >
                 <Icon className="w-6 h-6 mb-2" />
-                <span>{type}</span>
+                <span>{PropertyTypeLabels[type]}</span>
+
               </div>
             ))}
           </div>
@@ -143,7 +145,7 @@ const FiltersFull = () => {
 
         {/* Price Range */}
         <div>
-          <h4 className="font-bold mb-2">Price Range (Monthly)</h4>
+          <h4 className="font-bold mb-2">Khoảng giá (theo tháng)</h4>
           <Slider
             min={0}
             max={10000}
@@ -168,7 +170,7 @@ const FiltersFull = () => {
         {/* Beds and Baths */}
         <div className="flex gap-4">
           <div className="flex-1">
-            <h4 className="font-bold mb-2">Beds</h4>
+            <h4 className="font-bold mb-2">Phòng ngủ</h4>
             <Select
               value={localFilters.beds || "any"}
               onValueChange={(value) =>
@@ -179,16 +181,16 @@ const FiltersFull = () => {
                 <SelectValue placeholder="Beds" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="any">Any beds</SelectItem>
-                <SelectItem value="1">1+ bed</SelectItem>
-                <SelectItem value="2">2+ beds</SelectItem>
-                <SelectItem value="3">3+ beds</SelectItem>
-                <SelectItem value="4">4+ beds</SelectItem>
+                <SelectItem value="any">Chọn số phòng ngủ</SelectItem>
+                  <SelectItem value="1">1+ phòng ngủ</SelectItem>
+                  <SelectItem value="2">2+ phòng ngủ</SelectItem>
+                  <SelectItem value="3">3+ phòng ngủ</SelectItem>
+                  <SelectItem value="4">4+ phòng ngủ</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="flex-1">
-            <h4 className="font-bold mb-2">Baths</h4>
+            <h4 className="font-bold mb-2">Phòng tắm</h4>
             <Select
               value={localFilters.baths || "any"}
               onValueChange={(value) =>
@@ -199,10 +201,10 @@ const FiltersFull = () => {
                 <SelectValue placeholder="Baths" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="any">Any baths</SelectItem>
-                <SelectItem value="1">1+ bath</SelectItem>
-                <SelectItem value="2">2+ baths</SelectItem>
-                <SelectItem value="3">3+ baths</SelectItem>
+                <SelectItem value="any">Chọn số phòng tắm</SelectItem>
+                <SelectItem value="1">1+ phòng tắm</SelectItem>
+                <SelectItem value="2">2+ phòng tắm</SelectItem>
+                <SelectItem value="3">3+ phòng tắm</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -210,7 +212,36 @@ const FiltersFull = () => {
 
         {/* Square Feet */}
         <div>
-          <h4 className="font-bold mb-2">Square Feet</h4>
+            <h4 className="font-bold mb-2">Diện tích </h4>
+            <Slider
+              min={0}
+              max={5000}
+              step={100}
+              value={[
+                localFilters.squareFeet[0] ?? 0,
+                localFilters.squareFeet[1] ?? 5000,
+              ]}
+              onValueChange={(value) =>
+                setLocalFilters((prev) => ({
+                  ...prev,
+                  squareFeet: value as [number, number],
+                }))
+              }
+              className="[&>.bar]:bg-primary-700"
+            />
+            <div className="flex justify-between mt-2">
+              <span>
+                {((localFilters.squareFeet[0] ?? 0) * 0.0929).toFixed(1)} m²
+              </span>
+              <span>
+                {((localFilters.squareFeet[1] ?? 5000) * 0.0929).toFixed(1)} m²
+              </span>
+            </div>
+          </div>
+
+
+        {/* <div>
+          <h4 className="font-bold mb-2">Diện tích</h4>
           <Slider
             min={0}
             max={5000}
@@ -232,10 +263,11 @@ const FiltersFull = () => {
             <span>{localFilters.squareFeet[1] ?? 5000} sq ft</span>
           </div>
         </div>
+         */}
 
         {/* Amenities */}
         <div>
-          <h4 className="font-bold mb-2">Amenities</h4>
+          <h4 className="font-bold mb-2">Tiện nghi</h4>
           <div className="flex flex-wrap gap-2">
             {Object.entries(AmenityIcons).map(([amenity, Icon]) => (
               <div
@@ -250,8 +282,8 @@ const FiltersFull = () => {
               >
                 <Icon className="w-5 h-5 hover:cursor-pointer" />
                 <Label className="hover:cursor-pointer">
-                  {formatEnumString(amenity)}
-                </Label>
+                {AmenityLabels[amenity as AmenityEnum]}
+              </Label>
               </div>
             ))}
           </div>
@@ -259,7 +291,7 @@ const FiltersFull = () => {
 
         {/* Available From */}
         <div>
-          <h4 className="font-bold mb-2">Available From</h4>
+          <h4 className="font-bold mb-2">Căn hộ có sẵn từ ngày</h4>
           <Input
             type="date"
             value={
@@ -283,14 +315,14 @@ const FiltersFull = () => {
             onClick={handleSubmit}
             className="flex-1 bg-primary-700 text-white rounded-xl"
           >
-            APPLY
+            Áp dụng
           </Button>
           <Button
             onClick={handleReset}
             variant="outline"
             className="flex-1 rounded-xl"
           >
-            Reset Filters
+            Đặt lại
           </Button>
         </div>
       </div>

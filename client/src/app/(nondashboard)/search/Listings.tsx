@@ -51,7 +51,7 @@ const Listings = () => {
   };
 
   if (isLoading) return <>Loading...</>;
-  if (isError || !properties) return <div>Failed to fetch properties</div>;
+  if (isError || !properties) return <div>Không thể tải dữ liệu căn hộ</div>;
 
   return (
     <div className="w-full">

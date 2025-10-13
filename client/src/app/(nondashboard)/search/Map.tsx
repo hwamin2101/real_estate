@@ -43,7 +43,7 @@ const Map = () => {
   }, [isLoading, isError, properties, filters.coordinates]);
 
   if (isLoading) return <>Loading...</>;
-  if (isError || !properties) return <div>Failed to fetch properties</div>;
+  if (isError || !properties) return <div>Không lấy được dữ liệu</div>;
 
   return (
     <div className="basis-5/12 grow relative rounded-xl">

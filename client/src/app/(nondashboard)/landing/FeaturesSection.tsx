@@ -36,7 +36,7 @@ const FeaturesSection = () => {
           variants={itemVariants}
           className="text-3xl font-bold text-center mb-12 w-full sm:w-2/3 mx-auto"
         >
-          Quickly find the home you want using our effective search filters!
+          Dễ dàng tìm căn hộ ưng ý chỉ trong vài giây!
         </motion.h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 xl:gap-16">
           {[0, 1, 2].map((index) => (
@@ -45,19 +45,19 @@ const FeaturesSection = () => {
                 imageSrc={`/landing-search${3 - index}.png`}
                 title={
                   [
-                    "Trustworthy and Verified Listings",
-                    "Browse Rental Listings with Ease",
-                    "Simplify Your Rental Search with Advanced",
+                    "Danh sách căn hộ đáng tin cậy và đã xác thực",
+                    "Dễ dàng duyệt qua các căn hộ cho thuê",
+                    "Đơn giản hóa việc tìm kiếm căn hộ ",
                   ][index]
                 }
                 description={
                   [
-                    "Discover the best rental options with user reviews and ratings.",
-                    "Get access to user reviews and ratings for a better understanding of rental options.",
-                    "Find trustworthy and verified rental listings to ensure a hassle-free experience.",
+                    "Khám phá những lựa chọn thuê nhà tốt nhất với đánh giá và phản hồi từ người dùng.",
+                    "Xem các đánh giá thực tế từ người thuê để hiểu rõ hơn về căn hộ bạn quan tâm.",
+                    "Tìm kiếm những căn hộ đáng tin cậy và được xác thực để có trải nghiệm thuê nhà an tâm.",
                   ][index]
                 }
-                linkText={["Explore", "Search", "Discover"][index]}
+                linkText={["Khám phá", "Tìm kiếm", "Khám phá thêm"][index]}
                 linkHref={["/explore", "/search", "/discover"][index]}
               />
             </motion.div>

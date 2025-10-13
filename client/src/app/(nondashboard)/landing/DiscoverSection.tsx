@@ -31,37 +31,36 @@ const DiscoverSection = () => {
       <div className="max-w-6xl xl:max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 xl:px-16">
         <motion.div variants={itemVariants} className="my-12 text-center">
           <h2 className="text-3xl font-semibold leading-tight text-gray-800">
-            Discover
+            Khám phá ngay
           </h2>
           <p className="mt-4 text-lg text-gray-600">
-            Find your Dream Rental Property Today!
+            Tìm căn hộ cho thuê mơ ước của bạn ngay hôm nay!
           </p>
           <p className="mt-2 text-gray-500 max-w-3xl mx-auto">
-            Searching for your dream rental property has never been easier. With
-            our user-friendly search feature, you can quickly find the perfect
-            home that meets all your needs. Start your search today and discover
-            your dream rental property!
+            Việc tìm kiếm căn hộ cho thuê mơ ước của bạn chưa bao giờ dễ dàng đến thế.
+            Với tính năng tìm kiếm thân thiện và tiện lợi, bạn có thể nhanh chóng tìm được ngôi nhà hoàn hảo đáp ứng mọi nhu cầu của mình.
+            Hãy bắt đầu tìm kiếm ngay hôm nay và khám phá căn hộ mơ ước của bạn!
           </p>
         </motion.div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 xl:gap-16 text-center">
           {[
             {
               imageSrc: "/landing-icon-wand.png",
-              title: "Search for Properties",
+              title: "Tìm kiếm căn hộ",
               description:
-                "Browse through our extensive collection of rental properties in your desired location.",
+                "Khám phá kho căn hộ cho thuê đa dạng tại khu vực mà bạn mong muốn.",
             },
             {
               imageSrc: "/landing-icon-calendar.png",
-              title: "Book Your Rental",
+              title: "Đặt thuê căn hộ",
               description:
-                "Once you've found the perfect rental property, easily book it online with just a few clicks.",
+                "Khi đã tìm được căn hộ ưng ý, bạn có thể dễ dàng đặt thuê trực tuyến chỉ với vài thao tác.",
             },
             {
               imageSrc: "/landing-icon-heart.png",
-              title: "Enjoy your New Home",
+              title: "Tận hưởng tổ ấm mới",
               description:
-                "Move into your new rental property and start enjoying your dream home.",
+                "Chuyển vào căn hộ mới và bắt đầu tận hưởng không gian sống mơ ước của bạn.",
             },
           ].map((card, index) => (
             <motion.div key={index} variants={itemVariants}>

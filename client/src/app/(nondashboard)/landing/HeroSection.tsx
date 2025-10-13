@@ -43,7 +43,7 @@ const HeroSection = () => {
         router.push(`/search?${params.toString()}`);
       }
     } catch (error) {
-      console.error("error search location:", error);
+      console.error("Không thể tìm kiếm địa điểm:", error);
     }
   };
 
@@ -51,7 +51,7 @@ const HeroSection = () => {
     <div className="relative h-screen">
       <Image
         src="/landing-splash.jpg"
-        alt="Rentiful Rental Platform Hero Section"
+        alt="Giao diện chính giới thiệu Rentiful – nền tảng cho thuê căn hộ hiện đại"
         fill
         className="object-cover object-center"
         priority
@@ -65,11 +65,10 @@ const HeroSection = () => {
       >
         <div className="max-w-4xl mx-auto px-16 sm:px-12">
           <h1 className="text-5xl font-bold text-white mb-4">
-            Start your journey to finding the perfect place to call home
+            Bắt đầu hành trình tìm kiếm ngôi nhà hoàn hảo cho riêng bạn
           </h1>
           <p className="text-xl text-white mb-8">
-            Explore our wide range of rental properties tailored to fit your
-            lifestyle and needs!
+            Trải nghiệm đa dạng lựa chọn căn hộ cho thuê – được thiết kế để đáp ứng đúng nhu cầu và phong cách của bạn.
           </p>
 
           <div className="flex justify-center">
@@ -77,14 +76,14 @@ const HeroSection = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by city, neighborhood or address"
+              placeholder="Nhập thành phố, khu vực hoặc địa chỉ "
               className="w-full max-w-lg rounded-none rounded-l-xl border-none bg-white h-12"
             />
             <Button
               onClick={handleLocationSearch}
               className="bg-secondary-500 text-white rounded-none rounded-r-xl border-none hover:bg-secondary-600 h-12"
             >
-              Search
+              Tìm kiếm
             </Button>
           </div>
         </div>

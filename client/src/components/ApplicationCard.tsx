@@ -11,6 +11,14 @@ const ApplicationCard = ({
     application.property.photoUrls?.[0] || "/placeholder.jpg"
   );
 
+  const statusMap: { [key: string]: string } = {
+    Pending: "Chờ xử lý",
+    Approved: "Đã phê duyệt",
+    Denied: "Đã từ chối",
+  };
+
+  const displayedStatus = statusMap[application.status] || application.status;
+
   const statusColor =
     application.status === "Approved"
       ? "bg-green-500"
@@ -46,8 +54,8 @@ const ApplicationCard = ({
               </div>
             </div>
             <div className="text-xl font-semibold">
-              ${application.property.pricePerMonth}{" "}
-              <span className="text-sm font-normal">/ month</span>
+              {application.property.pricePerMonth.toLocaleString("vi-VN")} ₫
+              <span className="text-sm font-normal">/ tháng</span>
             </div>
           </div>
         </div>
@@ -59,25 +67,25 @@ const ApplicationCard = ({
         <div className="flex flex-col justify-between w-full lg:basis-2/12 lg:h-48 py-2 gap-3 lg:gap-0">
           <div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-500">Status:</span>
+              <span className="text-gray-500">Trạng thái:</span>
               <span
                 className={`px-2 py-1 ${statusColor} text-white rounded-full text-sm`}
               >
-                {application.status}
+                {displayedStatus}
               </span>
             </div>
             <hr className="mt-3" />
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">Start Date:</span>{" "}
+            <span className="text-gray-500">Ngày bắt đầu:</span>{" "}
             {new Date(application.lease?.startDate).toLocaleDateString()}
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">End Date:</span>{" "}
+            <span className="text-gray-500">Ngày kết thúc:</span>{" "}
             {new Date(application.lease?.endDate).toLocaleDateString()}
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">Next Payment:</span>{" "}
+            <span className="text-gray-500">Lần thanh toán tiếp theo:</span>{" "}
             {new Date(application.lease?.nextPaymentDate).toLocaleDateString()}
           </div>
         </div>
@@ -89,7 +97,7 @@ const ApplicationCard = ({
         <div className="flex flex-col justify-start gap-5 w-full lg:basis-3/12 lg:h-48 py-2">
           <div>
             <div className="text-lg font-semibold">
-              {userType === "manager" ? "Tenant" : "Manager"}
+              {userType === "manager" ? "Người thuê" : "Quản lý"}
             </div>
             <hr className="mt-3" />
           </div>

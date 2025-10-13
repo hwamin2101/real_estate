@@ -25,27 +25,27 @@ const CallToActionSection = () => {
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="mb-6 md:mb-0 md:mr-10">
             <h2 className="text-2xl font-bold text-white">
-              Find Your Dream Rental Property
+              Tìm ngôi nhà cho thuê mơ ước của bạn
             </h2>
           </div>
           <div>
             <p className="text-white mb-3">
-              Discover a wide range of rental properties in your desired
-              location.
+              Khám phá nhiều căn hộ cho thuê tại địa điểm bạn mong muốn..
             </p>
             <div className="flex justify-center md:justify-start gap-4">
               <button
                 onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 className="inline-block text-primary-700 bg-white rounded-lg px-6 py-3 font-semibold hover:bg-primary-500 hover:text-primary-50"
               >
-                Search
+                Tìm kiếm
+
               </button>
               <Link
                 href="/signup"
                 className="inline-block text-white bg-secondary-500 rounded-lg px-6 py-3 font-semibold hover:bg-secondary-600"
                 scroll={false}
               >
-                Sign Up
+                Đăng ký
               </Link>
             </div>
           </div>

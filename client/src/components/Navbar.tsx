@@ -80,13 +80,13 @@ const Navbar = () => {
               {authUser.userRole?.toLowerCase() === "manager" ? (
                 <>
                   <Plus className="h-4 w-4" />
-                  <span className="hidden md:block ml-2">Add New Property</span>
+                  <span className="hidden md:block ml-2">Thêm căn hộ mới</span>
                 </>
               ) : (
                 <>
                   <Search className="h-4 w-4" />
                   <span className="hidden md:block ml-2">
-                    Search Properties
+                    Tìm kiếm căn hộ
                   </span>
                 </>
               )}
@@ -95,7 +95,8 @@ const Navbar = () => {
         </div>
         {!isDashboardPage && (
           <p className="text-primary-200 hidden md:block">
-            Discover your perfect rental apartment with our advanced search
+            {/* Discover your perfect rental apartment with our advanced search */}
+           Tìm căn hộ cho thuê hoàn hảo của bạn với công cụ tìm kiếm nâng cao của chúng tôi
           </p>
         )}
         <div className="flex items-center gap-5">
@@ -134,7 +135,8 @@ const Navbar = () => {
                       )
                     }
                   >
-                    Go to Dashboard
+                    {/* Go to Dashboard */}
+                    Vào Bảng điều khiển
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="bg-primary-200" />
                   <DropdownMenuItem
@@ -146,13 +148,13 @@ const Navbar = () => {
                       )
                     }
                   >
-                    Settings
+                    Cài đặt
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="cursor-pointer hover:!bg-primary-700 hover:!text-primary-100"
                     onClick={handleSignOut}
                   >
-                    Sign out
+                    Đăng xuất
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -164,7 +166,7 @@ const Navbar = () => {
                   variant="outline"
                   className="text-white border-white bg-transparent hover:bg-white hover:text-primary-700 rounded-lg"
                 >
-                  Sign In
+                  Đăng nhập
                 </Button>
               </Link>
               <Link href="/signup">
@@ -172,7 +174,7 @@ const Navbar = () => {
                   variant="secondary"
                   className="text-white bg-secondary-600 hover:bg-white hover:text-primary-700 rounded-lg"
                 >
-                  Sign Up
+                  Đăng ký
                 </Button>
               </Link>
             </>

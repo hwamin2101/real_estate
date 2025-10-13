@@ -30,12 +30,12 @@ const Card = ({
         <div className="absolute bottom-4 left-4 flex gap-2">
           {property.isPetsAllowed && (
             <span className="bg-white/80 text-black text-xs font-semibold px-2 py-1 rounded-full">
-              Pets Allowed
+              Cho phép thú cưng
             </span>
           )}
           {property.isParkingIncluded && (
             <span className="bg-white/80 text-black text-xs font-semibold px-2 py-1 rounded-full">
-              Parking Included
+              Đã bao gồm chỗ đỗ xe
             </span>
           )}
         </div>
@@ -80,23 +80,24 @@ const Card = ({
             </span>
           </div>
           <p className="text-lg font-bold mb-3">
-            ${property.pricePerMonth.toFixed(0)}{" "}
-            <span className="text-gray-600 text-base font-normal"> /month</span>
+            {property.pricePerMonth.toLocaleString("vi-VN")} ₫
+            <span className="text-gray-600 text-base font-normal"> /tháng</span>
           </p>
         </div>
         <hr />
         <div className="flex justify-between items-center gap-4 text-gray-600 mt-5">
           <span className="flex items-center">
             <Bed className="w-5 h-5 mr-2" />
-            {property.beds} Bed
+            {property.beds} Phòng ngủ
           </span>
           <span className="flex items-center">
             <Bath className="w-5 h-5 mr-2" />
-            {property.baths} Bath
+            {property.baths} Phòng tắm
           </span>
           <span className="flex items-center">
             <House className="w-5 h-5 mr-2" />
-            {property.squareFeet} sq ft
+            {/* Đổi ft² sang m² và làm tròn 1 chữ số thập phân */}
+            {(property.squareFeet * 0.092903).toFixed(1)} m²
           </span>
         </div>
       </div>
