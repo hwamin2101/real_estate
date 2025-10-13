@@ -86,6 +86,7 @@ const FiltersBar = () => {
         const [lng, lat] = data.features[0].center;
         dispatch(
           setFilters({
+            ...filters,
             location: searchInput,
             coordinates: [lng, lat],
           })

@@ -11,6 +11,7 @@ import {
 } from "./ui/sidebar";
 import {
   Building,
+  CheckCircle,
   FileText,
   Heart,
   Home,
@@ -35,7 +36,8 @@ const AppSidebar = ({ userType }: AppSidebarProps) => {
             label: "Danh sách đăng ký thuê",
             href: "/managers/applications",
           },
-          { icon: Settings, label: "Cài đặt", href: "/managers/settings" },
+          { icon: CheckCircle, label: "Danh sách đã duyệt", href: "/managers/approved" },
+          { icon: Settings, label: "Settings", href: "/managers/settings" },
         ]
       : [
           { icon: Heart, label: "Yêu thích", href: "/tenants/favorites" },
@@ -115,13 +117,15 @@ const AppSidebar = ({ userType }: AppSidebarProps) => {
                           isActive ? "text-blue-600" : "text-gray-600"
                         }`}
                       />
-                      <span
-                        className={`font-medium ${
-                          isActive ? "text-blue-600" : "text-gray-600"
-                        }`}
-                      >
-                        {link.label}
-                      </span>
+                      {open && (
+                        <span
+                          className={`font-medium ml-3 ${
+                            isActive ? "text-blue-600" : "text-gray-600"
+                          } whitespace-nowrap overflow-hidden text-ellipsis`}
+                        >
+                          {link.label}
+                        </span>
+                      )}
                     </div>
                   </Link>
                 </SidebarMenuButton>

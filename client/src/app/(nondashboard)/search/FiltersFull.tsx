@@ -25,24 +25,40 @@ const FiltersFull = () => {
   const router = useRouter();
   const pathname = usePathname();
   const filters = useAppSelector((state) => state.global.filters);
-  const [localFilters, setLocalFilters] = useState(initialState.filters);
+  const [localFilters, setLocalFilters] = useState(filters);
   const isFiltersFullOpen = useAppSelector(
     (state) => state.global.isFiltersFullOpen
   );
+  React.useEffect(() => {
+  setLocalFilters(filters);
+}, [filters]);
 
-  const updateURL = debounce((newFilters: FiltersState) => {
-    const cleanFilters = cleanParams(newFilters);
-    const updatedSearchParams = new URLSearchParams();
 
-    Object.entries(cleanFilters).forEach(([key, value]) => {
-      updatedSearchParams.set(
-        key,
-        Array.isArray(value) ? value.join(",") : value.toString()
-      );
-    });
+const updateURL = debounce((newFilters: FiltersState) => {
+  const params = new URLSearchParams();
 
-    router.push(`${pathname}?${updatedSearchParams.toString()}`);
-  });
+  if (newFilters.location && newFilters.location.trim() !== "")
+    params.set("location", newFilters.location);
+
+  if (newFilters.coordinates && newFilters.coordinates.length === 2) {
+    params.set("latitude", newFilters.coordinates[1].toString());
+    params.set("longitude", newFilters.coordinates[0].toString());
+  }
+
+  if (newFilters.propertyType && newFilters.propertyType !== "any")
+    params.set("propertyType", newFilters.propertyType);
+
+  if (newFilters.amenities && newFilters.amenities.length > 0)
+    params.set("amenities", newFilters.amenities.join(","));
+
+  if (newFilters.priceRange && newFilters.priceRange.some((v) => v !== null)) {
+    params.set("minPrice", newFilters.priceRange[0]?.toString() || "0");
+    params.set("maxPrice", newFilters.priceRange[1]?.toString() || "10000");
+  }
+
+  router.push(`${pathname}?${params.toString()}`);
+}, 300);
+
 
   const handleSubmit = () => {
     dispatch(setFilters(localFilters));
@@ -248,7 +264,7 @@ const FiltersFull = () => {
             step={100}
             value={[
               localFilters.squareFeet[0] ?? 0,
-              localFilters.squareFeet[1] ?? 5000,
+              localFilters.squareFeet[1] ?? 500000,
             ]}
             onValueChange={(value) =>
               setLocalFilters((prev) => ({
@@ -260,7 +276,7 @@ const FiltersFull = () => {
           />
           <div className="flex justify-between mt-2">
             <span>{localFilters.squareFeet[0] ?? 0} sq ft</span>
-            <span>{localFilters.squareFeet[1] ?? 5000} sq ft</span>
+            <span>{localFilters.squareFeet[1] ?? 500000} sq ft</span>
           </div>
         </div>
          */}
@@ -274,7 +290,8 @@ const FiltersFull = () => {
                 key={amenity}
                 className={cn(
                   "flex items-center space-x-2 p-2 border rounded-lg hover:cursor-pointer",
-                  localFilters.amenities.includes(amenity as AmenityEnum)
+                  (localFilters.amenities ?? []).includes(amenity as AmenityEnum)
+
                     ? "border-black"
                     : "border-gray-200"
                 )}

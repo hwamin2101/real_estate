@@ -141,6 +141,8 @@ model Application {
   phoneNumber     String
   message         String?
   leaseId         Int?              @unique
+  startDate       DateTime?         
+  endDate         DateTime?         
 
   property Property @relation(fields: [propertyId], references: [id])
   tenant   Tenant   @relation(fields: [tenantCognitoId], references: [cognitoId])
