@@ -11,6 +11,20 @@ const ApplicationCard = ({
   const [imgSrc, setImgSrc] = useState(
     application.property.photoUrls?.[0] || "/placeholder.jpg"
   );
+  const getTranslatedStatus = (status: string) => {
+    switch (status) {
+      case "Approved":
+        return "Đã duyệt";
+      case "Denied":
+        return "Từ chối";
+      default:
+        return "Chờ duyệt";
+    }
+  };
+
+  const formatPrice = (price: number) => {
+    return price.toLocaleString('vi-VN');
+  };
 
   const statusColor =
     application.status === "Approved"
@@ -53,8 +67,8 @@ const ApplicationCard = ({
               </div>
             </div>
             <div className="text-xl font-semibold">
-              ${application.property.pricePerMonth}{" "}
-              <span className="text-sm font-normal">/ month</span>
+              {formatPrice(application.property.pricePerMonth)} VND{" "}
+              <span className="text-sm font-normal">/ ngày</span>
             </div>
           </div>
         </div>
@@ -63,28 +77,28 @@ const ApplicationCard = ({
         <div className="hidden lg:block border-[0.5px] border-primary-200 h-48" />
 
         {/* Status Section */}
-        <div className="flex flex-col justify-between w-full lg:basis-2/12 lg:h-48 py-2 gap-3 lg:gap-0">
+        <div className="flex flex-col justify-between w-full lg:basis-1/5 lg:h-48 py-2 gap-2 lg:gap-0">
           <div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-500">Status:</span>
+              <span className="text-gray-500">Trạng thái:</span>
               <span
                 className={`px-2 py-1 ${statusColor} text-white rounded-full text-sm`}
               >
-                {application.status}
+                {getTranslatedStatus(application.status)}
               </span>
             </div>
             <hr className="mt-3" />
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">Start Date:</span>
+            <span className="text-gray-500">Ngày bắt đầu:</span>
             <span>{formatDate(application.startDate)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">End Date:</span>
+            <span className="text-gray-500">Ngày kết thúc:</span>
             <span>{formatDate(application.endDate)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">Next Payment:</span>
+            <span className="text-gray-500">Hạn thanh toán kế tiếp:</span>
             <span>{formatDate(application.lease?.nextPaymentDate)}</span>
           </div>
         </div>
@@ -96,7 +110,7 @@ const ApplicationCard = ({
         <div className="flex flex-col justify-start gap-5 w-full lg:basis-3/12 lg:h-48 py-2">
           <div>
             <div className="text-lg font-semibold">
-              {userType === "manager" ? "Tenant" : "Manager"}
+              {userType === "manager" ? "Người thuê" : "Quản lý"}
             </div>
             <hr className="mt-3" />
           </div>

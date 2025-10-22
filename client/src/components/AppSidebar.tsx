@@ -30,24 +30,24 @@ const AppSidebar = ({ userType }: AppSidebarProps) => {
   const navLinks =
     userType === "manager"
       ? [
-          { icon: Building, label: "Properties", href: "/managers/properties" },
+          { icon: Building, label: "Danh sách căn hộ", href: "/managers/properties" },
           {
             icon: FileText,
-            label: "Applications",
+            label: "Danh sách đăng ký thuê",
             href: "/managers/applications",
           },
           { icon: CheckCircle, label: "Danh sách đã duyệt", href: "/managers/approved" },
-          { icon: Settings, label: "Settings", href: "/managers/settings" },
+          { icon: Settings, label: "Cài đặt", href: "/managers/settings" },
         ]
       : [
-          { icon: Heart, label: "Favorites", href: "/tenants/favorites" },
+          { icon: Heart, label: "Yêu thích", href: "/tenants/favorites" },
           {
             icon: FileText,
-            label: "Applications",
+            label: "Đơn đăng ký thuê",
             href: "/tenants/applications",
           },
-          { icon: Home, label: "Residences", href: "/tenants/residences" },
-          { icon: Settings, label: "Settings", href: "/tenants/settings" },
+          { icon: Home, label: "Nơi ở", href: "/tenants/residences" },
+          { icon: Settings, label: "Cài đặt", href: "/tenants/settings" },
         ];
 
   return (
@@ -65,13 +65,13 @@ const AppSidebar = ({ userType }: AppSidebarProps) => {
             <div
               className={cn(
                 "flex min-h-[56px] w-full items-center pt-3 mb-3",
-                open ? "justify-between px-6" : "justify-center"
+                open ? "justify-between px-7" : "justify-center"
               )}
             >
               {open ? (
                 <>
                   <h1 className="text-xl font-bold text-gray-800">
-                    {userType === "manager" ? "Manager View" : "Renter View"}
+                    {userType === "manager" ? "QUẢN LÝ" : "NGƯỜI THUÊ"}
                   </h1>
                   <button
                     className="hover:bg-gray-100 p-2 rounded-md"

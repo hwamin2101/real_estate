@@ -35,7 +35,7 @@ const components = {
           </span>
         </Heading>
         <p className="text-muted-foreground mt-2">
-          <span className="font-bold">Welcome!</span> Please sign in to continue
+          <span className="font-bold">Chào mừng!</span> Vui lòng đăng nhập để tiếp tục
         </p>
       </View>
     );
@@ -46,12 +46,12 @@ const components = {
       return (
         <View className="text-center mt-4">
           <p className="text-muted-foreground">
-            Don&apos;t have an account?{" "}
+            Bạn chưa có tài khoản?{" "}
             <button
               onClick={toSignUp}
               className="text-primary hover:underline bg-transparent border-none p-0"
             >
-              Sign up here
+              Đăng ký tại đây
             </button>
           </p>
         </View>
@@ -66,14 +66,14 @@ const components = {
         <>
           <Authenticator.SignUp.FormFields />
           <RadioGroupField
-            legend="Role"
+            legend="Vai trò"
             name="custom:role"
             errorMessage={validationErrors?.["custom:role"]}
             hasError={!!validationErrors?.["custom:role"]}
             isRequired
           >
-            <Radio value="tenant">Tenant</Radio>
-            <Radio value="manager">Manager</Radio>
+            <Radio value="tenant">Người thuê nhà</Radio>
+            <Radio value="manager">Chủ căn hộ</Radio>
           </RadioGroupField>
         </>
       );
@@ -84,12 +84,12 @@ const components = {
       return (
         <View className="text-center mt-4">
           <p className="text-muted-foreground">
-            Already have an account?{" "}
+           Bạn đã có tài khoản?{" "}
             <button
               onClick={toSignIn}
               className="text-primary hover:underline bg-transparent border-none p-0"
             >
-              Sign in
+             Đăng nhập
             </button>
           </p>
         </View>
@@ -101,39 +101,39 @@ const components = {
 const formFields = {
   signIn: {
     username: {
-      placeholder: "Enter your email",
+      placeholder: "Nhập email của bạn",
       label: "Email",
       isRequired: true,
     },
     password: {
-      placeholder: "Enter your password",
-      label: "Password",
+      placeholder: "Nhập mật khẩu của bạn",
+      label: "Mật khẩu",
       isRequired: true,
     },
   },
   signUp: {
     username: {
       order: 1,
-      placeholder: "Choose a username",
-      label: "Username",
+      placeholder: "Nhập tên người dùng",
+      label: "Tên người dùng",
       isRequired: true,
     },
     email: {
       order: 2,
-      placeholder: "Enter your email address",
+      placeholder: "Nhập địa chỉ email của bạn",
       label: "Email",
       isRequired: true,
     },
     password: {
       order: 3,
-      placeholder: "Create a password",
-      label: "Password",
+      placeholder: "Tạo mật khẩu",
+      label: "Mật khẩu",
       isRequired: true,
     },
     confirm_password: {
       order: 4,
-      placeholder: "Confirm your password",
-      label: "Confirm Password",
+      placeholder: "Nhập lại mật khẩu",
+      label: "Xác nhận mật khẩu",
       isRequired: true,
     },
   },
@@ -151,7 +151,8 @@ const Auth = ({ children }: { children: React.ReactNode }) => {
   // Redirect authenticated users away from auth pages
   useEffect(() => {
     if (user && isAuthPage) {
-      router.push("/");
+    //Thay đổi landingpage sau khi đăng nhập thành search
+      router.push("/search");
     }
   }, [user, isAuthPage, router]);
 

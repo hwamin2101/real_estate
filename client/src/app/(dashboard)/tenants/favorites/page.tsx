@@ -29,13 +29,13 @@ const Favorites = () => {
   );
 
   if (isLoading) return <Loading />;
-  if (error) return <div>Error loading favorites</div>;
+  if (error) return <div>Lỗi khi tải danh sách yêu thích</div>;
 
   return (
     <div className="dashboard-container">
       <Header
-        title="Favorited Properties"
-        subtitle="Browse and manage your saved property listings"
+        title="Căn yêu thích"
+        subtitle="Duyệt và quản lý danh sách căn hộ đã lưu của bạn"
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {favoriteProperties?.map((property) => (
@@ -50,7 +50,7 @@ const Favorites = () => {
         ))}
       </div>
       {(!favoriteProperties || favoriteProperties.length === 0) && (
-        <p>You don&lsquo;t have any favorited properties</p>
+        <p>Bạn không có bất kỳ căn hộ yêu thích nào</p>
       )}
     </div>
   );

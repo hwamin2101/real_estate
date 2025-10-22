@@ -17,13 +17,13 @@ const Properties = () => {
   });
 
   if (isLoading) return <Loading />;
-  if (error) return <div>Error loading manager properties</div>;
+  if (error) return <div>Lỗi khi tải dữ liệu</div>;
 
   return (
     <div className="dashboard-container">
       <Header
-        title="My Properties"
-        subtitle="View and manage your property listings"
+        title="Căn hộ của tôi"
+        subtitle="Xem và quản lý danh sách căn hộ của bạn"
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {managerProperties?.map((property) => (
@@ -38,7 +38,7 @@ const Properties = () => {
         ))}
       </div>
       {(!managerProperties || managerProperties.length === 0) && (
-        <p>You don&lsquo;t manage any properties</p>
+        <p>Bạn chưa quản lý bất kỳ căn hộ nào</p>
       )}
     </div>
   );

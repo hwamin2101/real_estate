@@ -42,7 +42,7 @@ const PropertyTenants = () => {
         new Date(payment.dueDate).getMonth() === currentDate.getMonth() &&
         new Date(payment.dueDate).getFullYear() === currentDate.getFullYear()
     );
-    return currentMonthPayment?.paymentStatus || "Not Paid";
+    return currentMonthPayment?.paymentStatus || "Chưa thanh toán";
   };
 
   return (
@@ -54,21 +54,21 @@ const PropertyTenants = () => {
         scroll={false}
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
-        <span>Back to Properties</span>
+        <span>Quay lại trang danh sách căn hộ</span>
       </Link>
 
       <Header
-        title={property?.name || "My Property"}
-        subtitle="Manage tenants and leases for this property"
+        title={property?.name || "Căn hộ của tôi"}
+        subtitle="Quản lý người thuê và hợp đồng thuê cho căn hộ này"
       />
 
       <div className="w-full space-y-6">
         <div className="mt-8 bg-white rounded-xl shadow-md overflow-hidden p-6">
           <div className="flex justify-between items-center mb-4">
             <div>
-              <h2 className="text-2xl font-bold mb-1">Tenants Overview</h2>
+              <h2 className="text-2xl font-bold mb-1">Tổng quan Người thuê</h2>
               <p className="text-sm text-gray-500">
-                Manage and view all tenants for this property.
+                Quản lý và xem tất cả người thuê của căn hộ này.
               </p>
             </div>
             <div>
@@ -77,7 +77,7 @@ const PropertyTenants = () => {
               px-4 rounded-md flex items-center justify-center hover:bg-primary-700 hover:text-primary-50`}
               >
                 <Download className="w-5 h-5 mr-2" />
-                <span>Download All</span>
+                <span>Tải xuống tất cả</span>
               </button>
             </div>
           </div>
@@ -86,12 +86,12 @@ const PropertyTenants = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Tenant</TableHead>
-                  <TableHead>Lease Period</TableHead>
-                  <TableHead>Monthly Rent</TableHead>
-                  <TableHead>Current Month Status</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Action</TableHead>
+                  <TableHead>Người thuê</TableHead>
+                  <TableHead>Thời hạn hợp đồng</TableHead>
+                  <TableHead>Tiền thuê hàng tháng</TableHead>
+                  <TableHead>Trạng thái tháng này</TableHead>
+                  <TableHead>Liên hệ</TableHead>
+                  <TableHead>Hành động</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -122,7 +122,24 @@ const PropertyTenants = () => {
                       </div>
                       <div>{new Date(lease.endDate).toLocaleDateString()}</div>
                     </TableCell>
-                    <TableCell>${lease.rent.toFixed(2)}</TableCell>
+                    <TableCell>
+                      {(() => {
+                        const start = new Date(lease.startDate);
+                        const end = new Date(lease.endDate);
+                        const days =
+                          Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) || 1; // tính số ngày thuê
+                        const total = lease.rent * days + (lease.contractFee || 0); // tổng tiền = tiền thuê theo ngày + phí hợp đồng
+
+                        return new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                          maximumFractionDigits: 0,
+                        }).format(total);
+                      })()}
+                    </TableCell>
+                    {/* <TableCell>{lease.rent.toFixed('vi-VN')} VND</TableCell>
+                     
+                    <TableCell></TableCell> */}
                     <TableCell>
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-semibold ${
@@ -144,7 +161,7 @@ const PropertyTenants = () => {
                       items-center justify-center font-semibold hover:bg-primary-700 hover:text-primary-50`}
                       >
                         <ArrowDownToLine className="w-4 h-4 mr-1" />
-                        Download Agreement
+                        Tải hợp đồng
                       </button>
                     </TableCell>
                   </TableRow>

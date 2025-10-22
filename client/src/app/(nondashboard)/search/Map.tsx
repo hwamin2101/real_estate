@@ -43,7 +43,7 @@ const Map = () => {
   }, [isLoading, isError, properties, filters.coordinates]);
 
   if (isLoading) return <>Loading...</>;
-  if (isError || !properties) return <div>Failed to fetch properties</div>;
+  if (isError || !properties) return <div>Không lấy được dữ liệu</div>;
 
   return (
     <div className="basis-5/12 grow relative rounded-xl">
@@ -74,7 +74,7 @@ const createPropertyMarker = (property: Property, map: mapboxgl.Map) => {
             <a href="/search/${property.id}" target="_blank" class="marker-popup-title">${property.name}</a>
             <p class="marker-popup-price">
               $${property.pricePerMonth}
-              <span class="marker-popup-price-unit"> / month</span>
+              <span class="marker-popup-price-unit"> / ngày</span>
             </p>
           </div>
         </div>

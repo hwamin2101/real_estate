@@ -33,10 +33,10 @@ const SettingsForm = ({
     <div className="pt-8 pb-5 px-8">
       <div className="mb-5">
         <h1 className="text-xl font-semibold">
-          {`${userType.charAt(0).toUpperCase() + userType.slice(1)} Settings`}
-        </h1>
+        {userType === "manager" ? "Cài đặt thông tin quản lý" : "Cài đặt thông tin người thuê"}
+      </h1>
         <p className="text-sm text-gray-500 mt-1">
-          Manage your account preferences and personal information
+          Quản lý tài khoản và thông tin cá nhân
         </p>
       </div>
       <div className="bg-white rounded-xl p-6">
@@ -45,7 +45,7 @@ const SettingsForm = ({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-6"
           >
-            <CustomFormField name="name" label="Name" disabled={!editMode} />
+            <CustomFormField name="name" label="Tên" disabled={!editMode} />
             <CustomFormField
               name="email"
               label="Email"
@@ -54,7 +54,7 @@ const SettingsForm = ({
             />
             <CustomFormField
               name="phoneNumber"
-              label="Phone Number"
+              label="Số điện thoại"
               disabled={!editMode}
             />
 
@@ -64,14 +64,14 @@ const SettingsForm = ({
                 onClick={toggleEditMode}
                 className="bg-secondary-500 text-white hover:bg-secondary-600"
               >
-                {editMode ? "Cancel" : "Edit"}
+                {editMode ? "Hủy" : "Chỉnh sửa"}
               </Button>
               {editMode && (
                 <Button
                   type="submit"
                   className="bg-primary-700 text-white hover:bg-primary-800"
                 >
-                  Save Changes
+                  Lưu thay đổi
                 </Button>
               )}
             </div>

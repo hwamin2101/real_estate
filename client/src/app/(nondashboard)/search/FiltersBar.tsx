@@ -13,6 +13,8 @@ import { cleanParams, cn, formatPriceValue } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Filter, Grid, List, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import {PropertyTypeLabels } from "@/lib/constants";//Thêm PropertyTypeLabels dùng để hiển thị ra giao diện
+
 import {
   Select,
   SelectContent,
@@ -93,7 +95,7 @@ const FiltersBar = () => {
         );
       }
     } catch (err) {
-      console.error("Error search location:", err);
+      console.error("Lỗi: không thể tìm kiếm địa điểm.", err);
     }
   };
 
@@ -111,13 +113,13 @@ const FiltersBar = () => {
           onClick={() => dispatch(toggleFiltersFullOpen())}
         >
           <Filter className="w-4 h-4" />
-          <span>All Filters</span>
+          <span>Hiển thị tất cả</span>
         </Button>
 
         {/* Search Location */}
         <div className="flex items-center">
           <Input
-            placeholder="Search location"
+            placeholder="Nhập địa điểm cần tìm"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             className="w-40 rounded-l-xl rounded-r-none border-primary-400 border-r-0"
@@ -130,10 +132,10 @@ const FiltersBar = () => {
             <Search className="w-4 h-4" />
           </Button>
         </div>
-
-        {/* Price Range */}
+{/*  
+        
         <div className="flex gap-1">
-          {/* Minimum Price Selector */}
+          
           <Select
             value={filters.priceRange[0]?.toString() || "any"}
             onValueChange={(value) =>
@@ -155,7 +157,7 @@ const FiltersBar = () => {
             </SelectContent>
           </Select>
 
-          {/* Maximum Price Selector */}
+         
           <Select
             value={filters.priceRange[1]?.toString() || "any"}
             onValueChange={(value) =>
@@ -177,6 +179,59 @@ const FiltersBar = () => {
             </SelectContent>
           </Select>
         </div>
+ */}
+ 
+
+        {/* Price Range */}
+        <div className="flex gap-1">
+            {/* Giá tối thiểu */}
+            <Select
+              value={filters.priceRange[0]?.toString() || "any"}
+              onValueChange={(value) =>
+                handleFilterChange("priceRange", value, true)
+              }
+            >
+              <SelectTrigger className="w-28 rounded-xl border-primary-400">
+                <SelectValue>
+                  {filters.priceRange[0]
+                    ? `${(filters.priceRange[0] / 1_000_000).toLocaleString("vi-VN")} triệu+`
+                    : "Giá tối thiểu"}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                <SelectItem value="any">Giá tối thiểu</SelectItem>
+                {[0.5,1, 1.5,2, 3, 5, 10, 15, 20].map((price) => (
+                  <SelectItem key={price} value={(price * 1_000_000).toString()}>
+                    Từ {price} triệu+
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Giá tối đa */}
+            <Select
+              value={filters.priceRange[1]?.toString() || "any"}
+              onValueChange={(value) =>
+                handleFilterChange("priceRange", value, false)
+              }
+            >
+              <SelectTrigger className="w-28 rounded-xl border-primary-400">
+                <SelectValue>
+                  {filters.priceRange[1]
+                    ? `Dưới ${(filters.priceRange[1] / 1_000_000).toLocaleString("vi-VN")} triệu`
+                    : "Giá tối đa"}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                <SelectItem value="any">Giá tối đa</SelectItem>
+                {[1, 2,3, 5, 10,15, 20, 30, 50].map((price) => (
+                  <SelectItem key={price} value={(price * 1_000_000).toString()}>
+                    Dưới {price} triệu
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
         {/* Beds and Baths */}
         <div className="flex gap-1">
@@ -189,11 +244,11 @@ const FiltersBar = () => {
               <SelectValue placeholder="Beds" />
             </SelectTrigger>
             <SelectContent className="bg-white">
-              <SelectItem value="any">Any Beds</SelectItem>
-              <SelectItem value="1">1+ bed</SelectItem>
-              <SelectItem value="2">2+ beds</SelectItem>
-              <SelectItem value="3">3+ beds</SelectItem>
-              <SelectItem value="4">4+ beds</SelectItem>
+              <SelectItem value="any">Phòng ngủ</SelectItem>
+                <SelectItem value="1">1+ phòng</SelectItem>
+                <SelectItem value="2">2+ phòng</SelectItem>
+                <SelectItem value="3">3+ phòng</SelectItem>
+                <SelectItem value="4">4+ phòng</SelectItem>
             </SelectContent>
           </Select>
 
@@ -203,13 +258,13 @@ const FiltersBar = () => {
             onValueChange={(value) => handleFilterChange("baths", value, null)}
           >
             <SelectTrigger className="w-26 rounded-xl border-primary-400">
-              <SelectValue placeholder="Baths" />
+              <SelectValue placeholder="Phòng tắmh" />
             </SelectTrigger>
             <SelectContent className="bg-white">
-              <SelectItem value="any">Any Baths</SelectItem>
-              <SelectItem value="1">1+ bath</SelectItem>
-              <SelectItem value="2">2+ baths</SelectItem>
-              <SelectItem value="3">3+ baths</SelectItem>
+              <SelectItem value="any">Phòng tắm</SelectItem>
+                <SelectItem value="1">1+ phòng tắm</SelectItem>
+                <SelectItem value="2">2+ phòng tắm</SelectItem>
+                <SelectItem value="3">3+ phòng tắm</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -222,21 +277,23 @@ const FiltersBar = () => {
           }
         >
           <SelectTrigger className="w-32 rounded-xl border-primary-400">
-            <SelectValue placeholder="Home Type" />
+            <SelectValue placeholder="Loại căn hộ" />
           </SelectTrigger>
           <SelectContent className="bg-white">
-            <SelectItem value="any">Any Property Type</SelectItem>
+            <SelectItem value="any">Loại căn hộ</SelectItem>
             {Object.entries(PropertyTypeIcons).map(([type, Icon]) => (
               <SelectItem key={type} value={type}>
                 <div className="flex items-center">
                   <Icon className="w-4 h-4 mr-2" />
-                  <span>{type}</span>
+                  <span>{PropertyTypeLabels[type as PropertyTypeEnum]}</span>
+                  {/* Sử dụng PropertyTypeLabels để hiển thị tên loại căn hộ */}
                 </div>
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
+      
 
       {/* View Mode */}
       <div className="flex justify-between items-center gap-4 p-2">

@@ -82,7 +82,7 @@ const ApprovedProperties = () => {
                 <TableHead>Căn hộ</TableHead>
                 <TableHead>Người thuê</TableHead>
                 <TableHead>Thời gian thuê</TableHead>
-                <TableHead>Giá thuê hàng tháng</TableHead>
+                <TableHead>Giá thuê </TableHead>
                 <TableHead>Trạng thái thanh toán</TableHead>
                 <TableHead>Liên hệ</TableHead>
               </TableRow>
@@ -129,7 +129,7 @@ const ApprovedProperties = () => {
                     </TableCell>
 
                     <TableCell>
-                      ${app.lease?.rent?.toLocaleString() || "N/A"}
+                       {app.lease?.rent?.toLocaleString() || "N/A"} VND
                     </TableCell>
 
                     <TableCell>

@@ -28,12 +28,12 @@ const CardCompact = ({
         <div className="absolute bottom-2 left-2 flex gap-1 flex-col">
           {property.isPetsAllowed && (
             <span className="bg-white/80 text-black text-xs font-semibold px-2 py-1 rounded-full w-fit">
-              Pets
+              Thú cưng
             </span>
           )}
           {property.isParkingIncluded && (
             <span className="bg-white/80 text-black text-xs font-semibold px-2 py-1 rounded-full">
-              Parking
+              Chỗ đậu xe
             </span>
           )}
         </div>
@@ -97,8 +97,8 @@ const CardCompact = ({
           </div>
 
           <p className="text-base font-bold">
-            ${property.pricePerMonth.toFixed(0)}
-            <span className="text-gray-600 text-xs font-normal"> /mo</span>
+            {property.pricePerMonth.toLocaleString("vi-VN")} VND
+            <span className="text-gray-600 text-xs font-normal"> /ngày</span>
           </p>
         </div>
       </div>

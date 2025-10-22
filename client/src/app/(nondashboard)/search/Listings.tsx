@@ -51,14 +51,16 @@ const Listings = () => {
   };
 
   if (isLoading) return <>Loading...</>;
-  if (isError || !properties) return <div>Failed to fetch properties</div>;
+  if (isError || !properties) return <div>Không thể tải dữ liệu căn hộ</div>;
 
   return (
     <div className="w-full">
       <h3 className="text-sm px-4 font-bold">
         {properties.length}{" "}
+        {/* Hiển thị trạng thái tải dữ liệu */}
         <span className="text-gray-700 font-normal">
-          Places in {filters.location}
+          {properties.length === 1 ? "Căn hộ" : "Căn hộ"} tại{" "} 
+          {filters.location || "khu vực được chọn"}
         </span>
       </h3>
       <div className="flex">

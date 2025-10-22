@@ -148,7 +148,7 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
                     ))
                   ) : (
                     <span className="text-gray-400 text-sm">
-                      No amenities selected
+                     Chưa chọn tiện ích nào
                     </span>
                   )}
                 </div>
@@ -162,7 +162,7 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
                   }}
                 >
                   <SelectTrigger className="w-full border-gray-200">
-                    <SelectValue placeholder="Select amenities..." />
+                    <SelectValue placeholder="Chọn tiện ích..." />
                   </SelectTrigger>
                   <SelectContent>
                     {options?.map((option) => (
@@ -199,8 +199,8 @@ export const CustomFormField: React.FC<FormFieldProps> = ({
                 field.onChange(files);
               }}
               allowMultiple={true}
-              labelIdle={`Drag & Drop your images or <span class="filepond--label-action">Browse</span>`}
-              credits={false}
+              labelIdle={`Kéo & thả hình ảnh của bạn vào đây hoặc <span class="filepond--label-action">Chọn tệp</span>`}
+            credits={false}
             />
           );
       case "number":
@@ -337,7 +337,7 @@ const MultiInputField: React.FC<MultiInputFieldProps> = ({
           className="mt-2 text-customgreys-dirtyGrey"
         >
           <Plus className="w-4 h-4 mr-2" />
-          Add Item
+          Thêm mục
         </Button>
       )}
     </div>

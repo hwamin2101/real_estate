@@ -37,7 +37,7 @@ const Applications = () => {
   };
 
   if (isLoading) return <Loading />;
-  if (isError || !applications) return <div>Error fetching applications</div>;
+  if (isError || !applications) return <div>Lỗi khi tải đơn đăng ký thuê</div>;
 
   const filteredApplications = applications?.filter((application) => {
     if (activeTab === "all") return true;
@@ -47,8 +47,8 @@ const Applications = () => {
   return (
     <div className="dashboard-container">
       <Header
-        title="Applications"
-        subtitle="View and manage applications for your properties"
+        title="Đơn đăng ký thuê"
+        subtitle="Xem và quản lý đơn đăng ký thuê cho căn hộ của bạn"
       />
       <Tabs
         value={activeTab}
@@ -56,10 +56,10 @@ const Applications = () => {
         className="w-full my-5"
       >
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="pending">Pending</TabsTrigger>
-          <TabsTrigger value="approved">Approved</TabsTrigger>
-          <TabsTrigger value="denied">Denied</TabsTrigger>
+          <TabsTrigger value="all">Tất cả</TabsTrigger>
+          <TabsTrigger value="pending">Chờ xử lý</TabsTrigger>
+          <TabsTrigger value="approved">Đã phê duyệt</TabsTrigger>
+          <TabsTrigger value="denied">Đã từ chối</TabsTrigger>
         </TabsList>
         {["all", "pending", "approved", "denied"].map((tab) => (
           <TabsContent key={tab} value={tab} className="mt-5 w-full">
@@ -88,7 +88,7 @@ const Applications = () => {
                       <div className="flex flex-wrap items-center">
                         <File className="w-5 h-5 mr-2 flex-shrink-0" />
                         <span className="mr-2">
-                          Application submitted on{" "}
+                          Yêu cầu thuê được gửi vào{" "}
                           {new Date(
                             application.applicationDate
                           ).toLocaleDateString()}
@@ -105,11 +105,11 @@ const Applications = () => {
                           }`}
                         >
                           {application.status === "Approved" &&
-                            "This application has been approved."}
+                            "Yêu cầu thuê này đã được phê duyệt."}
                           {application.status === "Denied" &&
-                            "This application has been denied."}
+                            "Yêu cầu thuê này đã bị từ chối."}
                           {application.status === "Pending" &&
-                            "This application is pending review."}
+                            "Yêu cầu thuê này đang chờ xem xét."}
                         </span>
                       </div>
                     </div>
@@ -123,7 +123,7 @@ const Applications = () => {
                         scroll={false}
                       >
                         <Hospital className="w-5 h-5 mr-2" />
-                        Property Details
+                        Chi tiết căn hộ
                       </Link>
                       {application.status === "Approved" && (
                         <button
@@ -131,7 +131,7 @@ const Applications = () => {
                           rounded-md flex items-center justify-center hover:bg-primary-700 hover:text-primary-50`}
                         >
                           <Download className="w-5 h-5 mr-2" />
-                          Download Agreement
+                          Tải hợp đồng
                         </button>
                       )}
                       {application.status === "Pending" && (
@@ -142,7 +142,7 @@ const Applications = () => {
                               handleStatusChange(application.id, "Approved")
                             }
                           >
-                            Approve
+                            Phê duyệt
                           </button>
                           <button
                             className="px-4 py-2 text-sm text-white bg-red-600 rounded hover:bg-red-500"
@@ -150,7 +150,7 @@ const Applications = () => {
                               handleStatusChange(application.id, "Denied")
                             }
                           >
-                            Deny
+                            Từ chối
                           </button>
                         </>
                       )}
@@ -159,7 +159,7 @@ const Applications = () => {
                           className={`bg-gray-800 text-white py-2 px-4 rounded-md flex items-center
                           justify-center hover:bg-secondary-500 hover:text-primary-50`}
                         >
-                          Contact User
+                          Liên hệ người dùng
                         </button>
                       )}
                     </div>
