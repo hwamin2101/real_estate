@@ -70,7 +70,7 @@ export const api = createApi({
             },
           };
         } catch (error: any) {
-          return { error: error.message || "Could not fetch user data" };
+          return { error: error.message || "Không thể tải dữ liệu người dùng" };
         }
       },
     }),
@@ -111,7 +111,7 @@ export const api = createApi({
           : [{ type: "Properties", id: "LIST" }],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
-          error: "Failed to fetch properties.",
+          error: "Không thể tải danh sách căn hộ.",
         });
       },
     }),
@@ -121,7 +121,7 @@ export const api = createApi({
       providesTags: (result, error, id) => [{ type: "PropertyDetails", id }],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
-          error: "Failed to load property details.",
+          error: "Không thể tải chi tiết căn hộ.",
         });
       },
     }),
@@ -132,7 +132,7 @@ export const api = createApi({
       providesTags: (result) => [{ type: "Tenants", id: result?.id }],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
-          error: "Failed to load tenant profile.",
+          error: "Không thể tải hồ sơ người thuê.",
         });
       },
     }),
@@ -148,7 +148,7 @@ export const api = createApi({
           : [{ type: "Properties", id: "LIST" }],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
-          error: "Failed to fetch current residences.",
+          error: "Không thể tải danh sách nơi đang thuê.",
         });
       },
     }),
@@ -165,8 +165,8 @@ export const api = createApi({
       invalidatesTags: (result) => [{ type: "Tenants", id: result?.id }],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
-          success: "Settings updated successfully!",
-          error: "Failed to update settings.",
+          success: "Cập nhật cài đặt thành công!",
+          error: "Cập nhật cài đặt thất bại.",
         });
       },
     }),
@@ -185,8 +185,8 @@ export const api = createApi({
       ],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
-          success: "Added to favorites!!",
-          error: "Failed to add to favorites",
+          success: "Đã thêm vào danh sách yêu thích!",
+          error: "Không thể thêm vào danh sách yêu thích.",
         });
       },
     }),
@@ -205,8 +205,8 @@ export const api = createApi({
       ],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
-          success: "Removed from favorites!",
-          error: "Failed to remove from favorites.",
+          success: "Đã xóa khỏi danh sách yêu thích!",
+          error: "Không thể xóa khỏi danh sách yêu thích.",
         });
       },
     }),
@@ -223,7 +223,7 @@ export const api = createApi({
           : [{ type: "Properties", id: "LIST" }],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
-          error: "Failed to load manager profile.",
+          error: "Không thể tải danh sách căn hộ của quản lý.",
         });
       },
     }),
@@ -240,8 +240,8 @@ export const api = createApi({
       invalidatesTags: (result) => [{ type: "Managers", id: result?.id }],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
-          success: "Settings updated successfully!",
-          error: "Failed to update settings.",
+          success: "Cập nhật thông tin quản lý thành công!",
+          error: "Cập nhật thông tin quản lý thất bại.",
         });
       },
     }),
@@ -258,8 +258,8 @@ export const api = createApi({
       ],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
-          success: "Property created successfully!",
-          error: "Failed to create property.",
+          success: "Tạo căn hộ mới thành công!",
+          error: "Không thể tạo căn hộ mới.",
         });
       },
     }),
@@ -270,7 +270,7 @@ export const api = createApi({
       providesTags: ["Leases"],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
-          error: "Failed to fetch leases.",
+          error: "Không thể tải danh sách hợp đồng thuê.",
         });
       },
     }),
@@ -294,7 +294,7 @@ getPropertyLeases: build.query<Lease[], number>({
       const userType = idToken?.payload["custom:role"]; // “manager” hoặc “tenant”
 
       if (!userId || !userType) {
-        return { error: { status: 400, data: "Missing user information" } };
+        return { error: { status: 400, data: "Thiếu thông tin người dùng" } };
       }
 
       const result = await baseQuery(`applications?userId=${userId}&userType=${userType}`);
@@ -315,7 +315,7 @@ getPropertyLeases: build.query<Lease[], number>({
         })),
       };
     } catch (err) {
-      return { error: { status: 500, data: "Failed to fetch user session" } };
+      return { error: { status: 500, data: "Không thể tải thông tin phiên người dùng" } };
     }
   },
 }),
@@ -329,7 +329,7 @@ getPropertyLeases: build.query<Lease[], number>({
       providesTags: ["Payments"],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
-          error: "Failed to fetch payment info.",
+          error: "Không thể tải thông tin thanh toán.",
         });
       },
     }),
@@ -353,7 +353,7 @@ getPropertyLeases: build.query<Lease[], number>({
       providesTags: ["Applications"],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
-          error: "Failed to fetch applications.",
+          error: "Không thể tải danh sách đơn thuê.",
         });
       },
     }),
@@ -370,8 +370,8 @@ getPropertyLeases: build.query<Lease[], number>({
       invalidatesTags: ["Applications", "Leases"],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
-          success: "Application status updated successfully!",
-          error: "Failed to update application settings.",
+          success: "Cập nhật trạng thái thuê thành công!",
+          error: "Cập nhật trạng thái thuê thất bại.",
         });
       },
     }),
@@ -385,8 +385,8 @@ getPropertyLeases: build.query<Lease[], number>({
       invalidatesTags: ["Applications"],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
-          success: "Application created successfully!",
-          error: "Failed to create applications.",
+          success: "Yêu cầu thuê mới thành công!",
+          error: "Không thể yêu cầu thuê mới.",
         });
       },
     }),

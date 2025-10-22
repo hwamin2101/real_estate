@@ -88,7 +88,7 @@ const Applications = () => {
                       <div className="flex flex-wrap items-center">
                         <File className="w-5 h-5 mr-2 flex-shrink-0" />
                         <span className="mr-2">
-                          Đơn xin thuê được gửi vào{" "}
+                          Yêu cầu thuê được gửi vào{" "}
                           {new Date(
                             application.applicationDate
                           ).toLocaleDateString()}
@@ -105,11 +105,11 @@ const Applications = () => {
                           }`}
                         >
                           {application.status === "Approved" &&
-                            "Đơn xin thuê này đã được phê duyệt."}
+                            "Yêu cầu thuê này đã được phê duyệt."}
                           {application.status === "Denied" &&
-                            "Đơn xin thuê này đã bị từ chối."}
+                            "Yêu cầu thuê này đã bị từ chối."}
                           {application.status === "Pending" &&
-                            "Đơn xin thuê này đang chờ xem xét."}
+                            "Yêu cầu thuê này đang chờ xem xét."}
                         </span>
                       </div>
                     </div>

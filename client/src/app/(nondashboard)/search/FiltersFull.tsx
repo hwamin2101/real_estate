@@ -8,7 +8,7 @@ import { cleanParams, cn, formatEnumString } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
-import { AmenityIcons, PropertyTypeIcons,  PropertyTypeLabels } from "@/lib/constants";
+import { AmenityIcons, PropertyTypeIcons,  PropertyTypeLabels } from "@/lib/constants";//Thêm PropertyTypeLabels dùng để hiển thị ra giao diện
 import {AmenityLabels,PropertyTypeEnum,} from "../../../lib/constants";
 import { Slider } from "@/components/ui/slider";
 import {
@@ -131,7 +131,7 @@ const updateURL = debounce((newFilters: FiltersState) => {
           </div>
         </div>
 
-        {/* Property Type */}
+       {/* Property Type */}
         <div>
           <h4 className="font-bold mb-2">Loại căn hộ</h4>
           <div className="grid grid-cols-2 gap-4">
@@ -152,23 +152,24 @@ const updateURL = debounce((newFilters: FiltersState) => {
                 }
               >
                 <Icon className="w-6 h-6 mb-2" />
-                <span>{PropertyTypeLabels[type]}</span>
-
+                <span>{PropertyTypeLabels[type as PropertyTypeEnum]}</span>
+ 
               </div>
             ))}
           </div>
         </div>
 
+
         {/* Price Range */}
         <div>
-          <h4 className="font-bold mb-2">Khoảng giá (theo tháng)</h4>
+          <h4 className="font-bold mb-2">Khoảng giá (Theo ngày)</h4>
           <Slider
             min={0}
-            max={10000}
-            step={100}
+            max={10000000} // Giới hạn tối đa 10 triệu 
+            step={50000}   
             value={[
               localFilters.priceRange[0] ?? 0,
-              localFilters.priceRange[1] ?? 10000,
+              localFilters.priceRange[1] ?? 10000000,
             ]}
             onValueChange={(value: any) =>
               setLocalFilters((prev) => ({
@@ -177,11 +178,17 @@ const updateURL = debounce((newFilters: FiltersState) => {
               }))
             }
           />
+           
           <div className="flex justify-between mt-2">
-            <span>${localFilters.priceRange[0] ?? 0}</span>
-            <span>${localFilters.priceRange[1] ?? 10000}</span>
+            <span>
+              {new Intl.NumberFormat("vi-VN").format(localFilters.priceRange[0] ?? 0)} VND
+            </span>
+            <span>
+              {new Intl.NumberFormat("vi-VN").format(localFilters.priceRange[1] ?? 10000000)} VND
+            </span>
           </div>
         </div>
+
 
         {/* Beds and Baths */}
         <div className="flex gap-4">

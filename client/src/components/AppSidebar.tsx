@@ -30,14 +30,14 @@ const AppSidebar = ({ userType }: AppSidebarProps) => {
   const navLinks =
     userType === "manager"
       ? [
-          { icon: Building, label: "Bất động sản", href: "/managers/properties" },
+          { icon: Building, label: "Danh sách căn hộ", href: "/managers/properties" },
           {
             icon: FileText,
             label: "Danh sách đăng ký thuê",
             href: "/managers/applications",
           },
           { icon: CheckCircle, label: "Danh sách đã duyệt", href: "/managers/approved" },
-          { icon: Settings, label: "Settings", href: "/managers/settings" },
+          { icon: Settings, label: "Cài đặt", href: "/managers/settings" },
         ]
       : [
           { icon: Heart, label: "Yêu thích", href: "/tenants/favorites" },
@@ -65,13 +65,13 @@ const AppSidebar = ({ userType }: AppSidebarProps) => {
             <div
               className={cn(
                 "flex min-h-[56px] w-full items-center pt-3 mb-3",
-                open ? "justify-between px-6" : "justify-center"
+                open ? "justify-between px-7" : "justify-center"
               )}
             >
               {open ? (
                 <>
                   <h1 className="text-xl font-bold text-gray-800">
-                    {userType === "manager" ? "Giao diện Quản lý" : "Giao diện Người thuê"}
+                    {userType === "manager" ? "QUẢN LÝ" : "NGƯỜI THUÊ"}
                   </h1>
                   <button
                     className="hover:bg-gray-100 p-2 rounded-md"

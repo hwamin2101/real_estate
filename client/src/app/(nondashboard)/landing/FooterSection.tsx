@@ -12,15 +12,15 @@ import {
 const FooterSection = () => {
   return (
     <footer className="border-t border-gray-200 py-20">
-      <div className="max-w-4xl mx-auto px-6 sm:px-8">
+      <div className="max-w-4xl mx-auto px-6 sm:px-9">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4">
             <Link href="/" className="text-xl font-bold" scroll={false}>
               RENTIFUL
             </Link>
           </div>
-          <nav className="mb-4">
-            <ul className="flex space-x-6">
+          <nav className="mb-7">
+            <ul className="flex space-x-3">
               <li>
               <Link href="/about">Về Chúng Tôi</Link>
                 </li>
@@ -33,7 +33,7 @@ const FooterSection = () => {
                 <li>
                   <Link href="/terms">Điều Khoản Sử Dụng</Link>
                 </li>
-                <li>
+                <li>j
                   <Link href="/privacy">Chính Sách Bảo Mật</Link>
                 </li>
             </ul>
@@ -68,7 +68,7 @@ const FooterSection = () => {
             </a>
           </div>
         </div>
-        <div className="mt-8 text-center text-sm text-gray-500 flex justify-center space-x-4">
+        <div className="mt-7 text-center text-sm text-gray-500 flex justify-center space-x-5">
           <span>© RENTiful. Đã đăng ký bản quyền.</span>
           <Link href="/privacy">Chính Sách Bảo Mật</Link>
           <Link href="/terms">Điều Khoản Dịch Vụ</Link>

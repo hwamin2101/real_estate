@@ -1,5 +1,6 @@
 import React from "react";
 import { DateRange, RangeKeyDict } from "react-date-range";
+import { vi } from "date-fns/locale"; // Thêm dòng này
 import "react-date-range/dist/styles.css"; // File CSS chính
 import "react-date-range/dist/theme/default.css"; // File CSS theme mặc định
 
@@ -26,6 +27,7 @@ const Calendar: React.FC<CalendarProps> = ({
         disabledDates={disabledDates}
         minDate={new Date()} // Không cho chọn ngày trong quá khứ
         className="shadow-md rounded-lg"
+        locale={vi} // Hiển thị tiếng Việt
       />
     </div>
   );

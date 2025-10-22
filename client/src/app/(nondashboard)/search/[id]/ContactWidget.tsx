@@ -24,7 +24,7 @@ const ContactWidget = ({ onOpenModal }: ContactWidgetProps) => {
           <Phone className="text-primary-50" size={15} />
         </div>
         <div>
-          <p>Contact This Property</p>
+          <p>Liên hệ với chủ sở hữu</p>
           <div className="text-lg font-bold text-primary-800">
             (424) 340-5574
           </div>
@@ -34,14 +34,14 @@ const ContactWidget = ({ onOpenModal }: ContactWidgetProps) => {
         className="w-full bg-primary-700 text-white hover:bg-primary-600"
         onClick={handleButtonClick}
       >
-        {authUser ? "Submit Application" : "Sign In to Apply"}
+        {authUser ? "Gửi yêu cầu thuê" : "Đăng nhập để gửi yêu cầu"}
       </Button>
 
       <hr className="my-4" />
       <div className="text-sm">
-        <div className="text-primary-600 mb-1">Language: English, Bahasa.</div>
+        
         <div className="text-primary-600">
-          Open by appointment on Monday - Sunday
+          Mở cửa theo lịch hẹn từ Thứ Hai đến Chủ Nhật
         </div>
       </div>
     </div>

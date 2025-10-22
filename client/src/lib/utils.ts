@@ -12,12 +12,13 @@ export function formatEnumString(str: string) {
 
 export function formatPriceValue(value: number | null, isMin: boolean) {
   if (value === null || value === 0)
-    return isMin ? "Any Min Price" : "Any Max Price";
+    return isMin ?  "Không giới hạn giá tối thiểu" : "Không giới hạn giá tối đa";
   if (value >= 1000) {
     const kValue = value / 1000;
-    return isMin ? `$${kValue}k+` : `<$${kValue}k`;
+    return isMin ? `Từ VND${kValue}k trở lên` : `Dưới VND${kValue}k`;
   }
-  return isMin ? `$${value}+` : `<$${value}`;
+
+  return isMin ? `Từ VND${value}` : `Dưới VND${value}`;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -77,7 +78,7 @@ export const createNewUserInDatabase = async (
   });
 
   if (createUserResponse.error) {
-    throw new Error("Failed to create user record");
+    throw new Error("Tạo người dùng mới thất bại");
   }
 
   return createUserResponse;

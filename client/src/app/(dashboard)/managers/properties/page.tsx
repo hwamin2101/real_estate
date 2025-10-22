@@ -22,8 +22,8 @@ const Properties = () => {
   return (
     <div className="dashboard-container">
       <Header
-        title="Bất động sản của tôi"
-        subtitle="Xem và quản lý danh sách bất động sản của bạn"
+        title="Căn hộ của tôi"
+        subtitle="Xem và quản lý danh sách căn hộ của bạn"
       />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {managerProperties?.map((property) => (

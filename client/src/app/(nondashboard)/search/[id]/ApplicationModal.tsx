@@ -74,7 +74,7 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({
   // Hàm xử lý submit
   const onSubmit = async (data: ApplicationFormData) => {
     if (!authUser || authUser.userRole !== "tenant") {
-      console.error("You must be logged in as a tenant to submit an application");
+      console.error("Bạn cần đăng nhập bằng tài khoản người thuê để đăng ký thuê căn hộ.");
       return;
     }
 
@@ -97,51 +97,51 @@ const ApplicationModal: React.FC<ApplicationModalProps> = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-white">
         <DialogHeader className="mb-4">
-          <DialogTitle>Submit Application for this Property</DialogTitle>
+          <DialogTitle>Đăng ký thuê căn hộ</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <CustomFormField
               name="name"
-              label="Name"
+              label="Họ và Tên"
               type="text"
-              placeholder="Enter your full name"
+              placeholder="Nhập họ và tên của bạn"
             />
             <CustomFormField
               name="email"
               label="Email"
               type="email"
-              placeholder="Enter your email address"
+              placeholder="Nhập địa chỉ email"
             />
             <CustomFormField
               name="phoneNumber"
-              label="Phone Number"
+              label="Số điện thoại"
               type="text"
-              placeholder="Enter your phone number"
+              placeholder="Nhập số điện thoại của bạn"
             />
             <CustomFormField
               name="message"
-              label="Message (Optional)"
+              label="Lời nhắn (không bắt buộc)"
               type="textarea"
-              placeholder="Enter any additional information"
+              placeholder="Nhập thêm thông tin nếu cần (ví dụ: thời gian dọn vào, yêu cầu đặc biệt...)"
             />
             {/* Hiển thị ngày bắt đầu và kết thúc (readonly) */}
             <CustomFormField
               name="startDate"
-              label="Start Date"
+              label="Ngày bắt đầu thuê"
               type="text"
               readOnly
-              placeholder="Select start date from calendar"
+              placeholder="Chọn ngày bắt đầu từ lịch"
             />
             <CustomFormField
               name="endDate"
-              label="End Date"
+              label="Ngày kết thúc thuê"
               type="text"
               readOnly
-              placeholder="Select end date from calendar"
+              placeholder="Chọn ngày kết thúc từ lịch"
             />
             <Button type="submit" className="bg-primary-700 text-white w-full">
-              Submit Application
+              Gửi đăng ký thuê 
             </Button>
           </form>
         </Form>

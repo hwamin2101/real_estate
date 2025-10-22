@@ -19,13 +19,13 @@ const Applications = () => {
   });
 
   if (isLoading) return <Loading />;
-  if (isError || !applications) return <div>Lỗi khi tải đơn xin thuê</div>;
+  if (isError || !applications) return <div>Lỗi khi tải yêu cầu thuê</div>;
 
   return (
     <div className="dashboard-container">
       <Header
-        title="Đơn xin thuê"
-        subtitle="Theo dõi và quản lý đơn xin thuê bất động sản của bạn"
+        title="Yêu cầu thuê"
+        subtitle="Theo dõi và quản lý yêu cầu thuê căn hộ của bạn"
       />
       <div className="w-full">
         {applications?.map((application) => (
@@ -38,18 +38,18 @@ const Applications = () => {
               {application.status === "Approved" ? (
                 <div className="bg-green-100 p-4 text-green-700 grow flex items-center">
                   <CircleCheckBig className="w-5 h-5 mr-2" />
-                  Bất động sản đang được bạn thuê đến{" "}
+                  Căn hộ đang được bạn thuê đến{" "}
                   {new Date(application.lease?.endDate).toLocaleDateString()}
                 </div>
               ) : application.status === "Pending" ? (
                 <div className="bg-yellow-100 p-4 text-yellow-700 grow flex items-center">
                   <Clock className="w-5 h-5 mr-2" />
-                  Đơn xin thuê của bạn đang chờ phê duyệt
+                  Yêu cầu thuê của bạn đang chờ phê duyệt
                 </div>
               ) : (
                 <div className="bg-red-100 p-4 text-red-700 grow flex items-center">
                   <XCircle className="w-5 h-5 mr-2" />
-                  Đơn xin thuê của bạn đã bị từ chối
+                  Yêu cầu thuê của bạn đã bị từ chối
                 </div>
               )}
 

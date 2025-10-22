@@ -13,6 +13,8 @@ import { cleanParams, cn, formatPriceValue } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Filter, Grid, List, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import {PropertyTypeLabels } from "@/lib/constants";//Thêm PropertyTypeLabels dùng để hiển thị ra giao diện
+
 import {
   Select,
   SelectContent,
@@ -198,7 +200,7 @@ const FiltersBar = () => {
               </SelectTrigger>
               <SelectContent className="bg-white">
                 <SelectItem value="any">Giá tối thiểu</SelectItem>
-                {[1, 2, 3, 5, 10, 15, 20].map((price) => (
+                {[0.5,1, 1.5,2, 3, 5, 10, 15, 20].map((price) => (
                   <SelectItem key={price} value={(price * 1_000_000).toString()}>
                     Từ {price} triệu+
                   </SelectItem>
@@ -222,7 +224,7 @@ const FiltersBar = () => {
               </SelectTrigger>
               <SelectContent className="bg-white">
                 <SelectItem value="any">Giá tối đa</SelectItem>
-                {[3, 5, 10, 15, 20, 30, 50].map((price) => (
+                {[1, 2,3, 5, 10,15, 20, 30, 50].map((price) => (
                   <SelectItem key={price} value={(price * 1_000_000).toString()}>
                     Dưới {price} triệu
                   </SelectItem>
@@ -283,13 +285,15 @@ const FiltersBar = () => {
               <SelectItem key={type} value={type}>
                 <div className="flex items-center">
                   <Icon className="w-4 h-4 mr-2" />
-                  <span>{type}</span>
+                  <span>{PropertyTypeLabels[type as PropertyTypeEnum]}</span>
+                  {/* Sử dụng PropertyTypeLabels để hiển thị tên loại căn hộ */}
                 </div>
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
+      
 
       {/* View Mode */}
       <div className="flex justify-between items-center gap-4 p-2">
