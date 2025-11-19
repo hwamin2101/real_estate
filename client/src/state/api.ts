@@ -49,7 +49,6 @@ export const api = createApi({
 
           let userDetailsResponse = await fetchWithBQ(endpoint);
 
-          // if user doesn't exist, create new user
           if (
             userDetailsResponse.error &&
             userDetailsResponse.error.status === 404
@@ -75,7 +74,7 @@ export const api = createApi({
       },
     }),
 
-    // property related endpoints
+    // === PROPERTY ENDPOINTS ===
     getProperties: build.query<
       Property[],
       Partial<FiltersState> & { favoriteIds?: number[] }
@@ -90,10 +89,9 @@ export const api = createApi({
           propertyType: filters.propertyType,
           squareFeetMin: filters.squareFeet?.[0],
           squareFeetMax: filters.squareFeet?.[1],
-          amenities: (filters.amenities && Array.isArray(filters.amenities))
-          ? filters.amenities.join(",")
-          : "",
-
+          amenities: Array.isArray(filters.amenities)
+            ? filters.amenities.join(",")
+            : "",
           availableFrom: filters.availableFrom,
           favoriteIds: filters.favoriteIds?.join(","),
           latitude: filters.coordinates?.[1],
@@ -126,7 +124,39 @@ export const api = createApi({
       },
     }),
 
-    // tenant related endpoints
+    // === CẬP NHẬT CĂN HỘ ===
+    updateProperty: build.mutation<Property, { id: number } & Partial<Property> & { photos?: File[]; deletePhotoUrls?: string[] }>({
+      query: ({ id, formData }) => ({
+        url: `properties/${id}`,
+        method: "PATCH",
+        body: formData,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "PropertyDetails", id },
+        { type: "Properties", id },
+        { type: "Properties", id: "LIST" },
+      ],
+      async onQueryStarted(_, { queryFulfilled }) {
+        await withToast(queryFulfilled, {
+          success: "Cập nhật thành công!",
+          error: "Cập nhật thất bại.",
+        });
+      },
+    }),
+
+    // === XÓA CĂN HỘ ===
+    deleteProperty: build.mutation<void, number>({
+  query: (id) => ({
+    url: `properties/${id}`,
+    method: "DELETE",
+  }),
+  invalidatesTags: (result, error, id) => [
+    { type: "Properties", id: "LIST" },
+    { type: "PropertyDetails", id },
+  ],
+}),
+
+    // === TENANT ENDPOINTS ===
     getTenant: build.query<Tenant, string>({
       query: (cognitoId) => `tenants/${cognitoId}`,
       providesTags: (result) => [{ type: "Tenants", id: result?.id }],
@@ -211,7 +241,7 @@ export const api = createApi({
       },
     }),
 
-    // manager related endpoints
+    // === MANAGER ENDPOINTS ===
     getManagerProperties: build.query<Property[], string>({
       query: (cognitoId) => `managers/${cognitoId}/properties`,
       providesTags: (result) =>
@@ -264,7 +294,7 @@ export const api = createApi({
       },
     }),
 
-    // lease related enpoints
+    // === LEASE ENDPOINTS ===
     getLeases: build.query<Lease[], number>({
       query: () => "leases",
       providesTags: ["Leases"],
@@ -275,54 +305,42 @@ export const api = createApi({
       },
     }),
 
-    // getPropertyLeases: build.query<Lease[], number>({
-    //   query: (propertyId) => `properties/${propertyId}/leases`,
-    //   providesTags: ["Leases"],
-    //   async onQueryStarted(_, { queryFulfilled }) {
-    //     await withToast(queryFulfilled, {
-    //       error: "Failed to fetch property leases.",
-    //     });
-    //   },
-    // }),
+    getPropertyLeases: build.query<Lease[], number>({
+      async queryFn(propertyId, _api, _extra, baseQuery) {
+        try {
+          const session = await fetchAuthSession();
+          const { idToken } = session.tokens ?? {};
+          const userId = idToken?.payload["sub"];
+          const userType = idToken?.payload["custom:role"];
 
-getPropertyLeases: build.query<Lease[], number>({
-  async queryFn(propertyId, _api, _extra, baseQuery) {
-    try {
-      const session = await fetchAuthSession();
-      const { idToken } = session.tokens ?? {};
-      const userId = idToken?.payload["sub"]; // id Cognito duy nhất
-      const userType = idToken?.payload["custom:role"]; // “manager” hoặc “tenant”
+          if (!userId || !userType) {
+            return { error: { status: 400, data: "Thiếu thông tin người dùng" } };
+          }
 
-      if (!userId || !userType) {
-        return { error: { status: 400, data: "Thiếu thông tin người dùng" } };
-      }
+          const result = await baseQuery(
+            `applications?userId=${userId}&userType=${userType}`
+          );
+          if (result.error) return { error: result.error };
 
-      const result = await baseQuery(`applications?userId=${userId}&userType=${userType}`);
-      if (result.error) return { error: result.error };
+          const data = (result.data as any[]).filter(
+            (app) => app.property.id === propertyId && app.lease
+          );
 
-      const data = (result.data as any[]).filter(
-        (app) => app.property.id === propertyId && app.lease
-      );
-
-      return {
-        data: data.map((app) => ({
-          id: app.lease.id,
-          startDate: app.lease.startDate,
-          endDate: app.lease.endDate,
-          rent: app.lease.rent,
-          tenant: app.tenant,
-          property: app.property,
-        })),
-      };
-    } catch (err) {
-      return { error: { status: 500, data: "Không thể tải thông tin phiên người dùng" } };
-    }
-  },
-}),
-
-
-
-
+          return {
+            data: data.map((app) => ({
+              id: app.lease.id,
+              startDate: app.lease.startDate,
+              endDate: app.lease.endDate,
+              rent: app.lease.rent,
+              tenant: app.tenant,
+              property: app.property,
+            })),
+          };
+        } catch (err) {
+          return { error: { status: 500, data: "Không thể tải thông tin phiên người dùng" } };
+        }
+      },
+    }),
 
     getPayments: build.query<Payment[], number>({
       query: (leaseId) => `leases/${leaseId}/payments`,
@@ -334,20 +352,15 @@ getPropertyLeases: build.query<Lease[], number>({
       },
     }),
 
-    // application related endpoints
+    // === APPLICATION ENDPOINTS ===
     getApplications: build.query<
       Application[],
       { userId?: string; userType?: string }
     >({
       query: (params) => {
         const queryParams = new URLSearchParams();
-        if (params.userId) {
-          queryParams.append("userId", params.userId.toString());
-        }
-        if (params.userType) {
-          queryParams.append("userType", params.userType);
-        }
-
+        if (params.userId) queryParams.append("userId", params.userId);
+        if (params.userType) queryParams.append("userType", params.userType);
         return `applications?${queryParams.toString()}`;
       },
       providesTags: ["Applications"],
@@ -393,6 +406,7 @@ getPropertyLeases: build.query<Lease[], number>({
   }),
 });
 
+// === EXPORT HOOKS ===
 export const {
   useGetAuthUserQuery,
   useUpdateTenantSettingsMutation,
@@ -411,4 +425,7 @@ export const {
   useGetApplicationsQuery,
   useUpdateApplicationStatusMutation,
   useCreateApplicationMutation,
+  // === THÊM 2 HOOK MỚI ===
+  useUpdatePropertyMutation,
+  useDeletePropertyMutation,
 } = api;

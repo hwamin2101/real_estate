@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useGetAuthUserQuery } from "@/state/api";
+import { useGetAuthUserQuery, useGetPropertyQuery } from "@/state/api";
 import { useParams } from "next/navigation";
 import React, { useState } from "react";
 import ImagePreviews from "./ImagePreviews";
@@ -14,7 +13,6 @@ import Calendar from "./Calendar";
 import { addDays } from "date-fns";
 import { RangeKeyDict } from "react-date-range";
 
-// Định nghĩa interface cho trạng thái dateRange
 interface DateRangeState {
   startDate: Date;
   endDate: Date;
@@ -27,33 +25,44 @@ const SingleListing: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const { data: authUser } = useGetAuthUserQuery();
 
-  // Trạng thái cho khoảng ngày được chọn
+  const { data: property, isLoading: propertyLoading } = useGetPropertyQuery(propertyId);
+
   const [dateRange, setDateRange] = useState<DateRangeState[]>([
     {
       startDate: new Date(),
-      endDate: addDays(new Date(), 1), // Mặc định chọn 1 ngày
+      endDate: addDays(new Date(), 1),
       key: "selection",
     },
   ]);
 
-  // Danh sách các ngày không khả dụng (ví dụ)
-  const disabledDates: Date[] = [
-    // Thêm các ngày khác từ API hoặc database
-  ];
+  const disabledDates: Date[] = [];
 
-// Hàm xử lý khi người dùng chọn khoảng ngày
   const handleDateChange = (ranges: RangeKeyDict) => {
     const newDateRange = [ranges.selection as DateRangeState];
-    console.log("Selected Range:", {
-      startDate: newDateRange[0].startDate,
-      endDate: newDateRange[0].endDate,
-    }); // Gỡ lỗi
     setDateRange(newDateRange);
   };
 
+  if (propertyLoading) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
+      </div>
+    );
+  }
+
+  if (!property) {
+    return (
+      <div className="text-center py-20">
+        <p className="text-gray-500 text-lg">Không tìm thấy căn hộ.</p>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <ImagePreviews images={["/singlelisting-2.jpg", "/singlelisting-3.jpg"]} />
+      {/* ẢNH THẬT + LIGHTBOX */}
+      <ImagePreviews images={property.photoUrls || []} />
+
       <div className="flex flex-col md:flex-row justify-center gap-10 mx-10 md:w-2/3 md:mx-auto mt-16 mb-8">
         <div className="order-2 md:order-1">
           <PropertyOverview propertyId={propertyId} />
