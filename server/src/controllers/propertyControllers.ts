@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
-import { PrismaClient, Prisma, Amenity } from "@prisma/client";
+import { PrismaClient, Prisma, PropertyType } from "@prisma/client";
 import { wktToGeoJSON } from "@terraformer/wkt";
 import { S3Client } from "@aws-sdk/client-s3";
 import { Location } from "@prisma/client";
 import { Upload } from "@aws-sdk/lib-storage";
 import axios from "axios";
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { Amenity, Highlight } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -221,8 +222,174 @@ export const createProperty = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  // (giữ nguyên như cũ)
-  // ... (đoạn create)
+  try {
+    const files = req.files as Express.Multer.File[];
+    const {
+      address,
+      city,
+      state,
+      country,
+      postalCode,
+      managerCognitoId,
+      ...propertyData
+    } = req.body;
+
+    // 1. Upload ảnh lên S3
+    const photoUrls = await Promise.all(
+      files.map(async (file) => {
+        const uploadParams = {
+          Bucket: process.env.S3_BUCKET_NAME!,
+          Key: `properties/${Date.now()}-${file.originalname}`,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+        };
+
+        const uploadResult = await new Upload({
+          client: s3Client,
+          params: uploadParams,
+        }).done();
+
+        return uploadResult.Location;
+      })
+    );
+
+    // 2. Geocoding bằng Nominatim
+    const geocodingUrl = `https://nominatim.openstreetmap.org/search?${new URLSearchParams(
+      {
+        street: address,
+        city,
+        country,
+        postalcode: postalCode,
+        format: "json",
+        limit: "1",
+      }
+    ).toString()}`;
+
+    const geocodingResponse = await axios.get(geocodingUrl, {
+      headers: {
+        "User-Agent": "RealEstateApp (justsomedummyemail@gmail.com)",
+      },
+    });
+
+    const [longitude, latitude] =
+      geocodingResponse.data[0]?.lon && geocodingResponse.data[0]?.lat
+        ? [
+            parseFloat(geocodingResponse.data[0].lon),
+            parseFloat(geocodingResponse.data[0].lat),
+          ]
+        : [0, 0];
+
+    // 3. Tạo Location với PostGIS
+    const [location] = await prisma.$queryRaw<any[]>`
+      INSERT INTO "Location" (address, city, state, country, "postalCode", coordinates)
+      VALUES (
+        ${address},
+        ${city},
+        ${state},
+        ${country},
+        ${postalCode},
+        ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326)
+      )
+      RETURNING id, address, city, state, country, "postalCode", ST_AsText(coordinates) as coordinates;
+    `;
+
+    // 4. Helper: Chuẩn hóa mảng từ frontend (string, JSON, array đều ok)
+    const normalizeArray = (input: any): string[] => {
+      if (Array.isArray(input)) return input;
+      if (typeof input === "string") {
+        try {
+          const parsed = JSON.parse(input);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return input
+            .split(",")
+            .map((s: string) => s.replace(/[\[\]\"]/g, "").trim())
+            .filter(Boolean);
+        }
+      }
+      return [];
+    };
+
+    // 5. Map từ tiếng Việt (hoặc key) → Prisma Enum
+    const mapToAmenity = (str: string): Amenity | undefined => {
+      const vietnameseMap: Record<string, Amenity> = {
+        "Tủ lạnh": Amenity.Refrigerator,
+        "Điều hòa": Amenity.AirConditioning,
+        "Máy giặt & sấy": Amenity.WasherDryer,
+        "Máy rửa bát": Amenity.Dishwasher,
+        "Internet tốc độ cao": Amenity.HighSpeedInternet,
+        "Wi-Fi miễn phí": Amenity.WiFi,
+        "Bãi đỗ xe": Amenity.Parking,
+        "Phòng tập thể dục": Amenity.Gym,
+        "Hồ bơi": Amenity.Pool,
+        "Cho phép vật nuôi": Amenity.PetsAllowed,
+        "Lò vi sóng": Amenity.Microwave,
+        "Sàn gỗ": Amenity.HardwoodFloors,
+        "Tủ quần áo lớn": Amenity.WalkInClosets,
+      };
+      return vietnameseMap[str.trim()] || (Amenity as any)[str];
+    };
+
+    const mapToHighlight = (str: string): Highlight | undefined => {
+      const vietnameseMap: Record<string, Highlight> = {
+        "Điều hòa không khí": Highlight.AirConditioning,
+        "Truy cập Internet tốc độ cao": Highlight.HighSpeedInternetAccess,
+        "Máy giặt & sấy": Highlight.WasherDryer,
+        "Hệ thống sưởi": Highlight.Heating,
+        "Không hút thuốc": Highlight.SmokeFree,
+        "Tầm nhìn đẹp": Highlight.GreatView,
+        "Khu dân cư yên tĩnh": Highlight.QuietNeighborhood,
+        "Mới được cải tạo": Highlight.RecentlyRenovated,
+        "Gần phương tiện công cộng": Highlight.CloseToTransit,
+        "Bồn rửa đôi": Highlight.DoubleVanities,
+        "Bồn tắm & vòi sen": Highlight.TubShower,
+      };
+      return vietnameseMap[str.trim()] || (Highlight as any)[str];
+    };
+
+    // 6. Tạo Property – ĐÃ SỬA HOÀN TOÀN
+    const newProperty = await prisma.property.create({
+      data: {
+        ...propertyData,
+        name: propertyData.name,
+        description: propertyData.description,
+        pricePerMonth: parseFloat(propertyData.pricePerMonth),
+        securityDeposit: parseFloat(propertyData.securityDeposit),
+        applicationFee: parseFloat(propertyData.applicationFee),
+        beds: parseInt(propertyData.beds),
+        baths: parseFloat(propertyData.baths),
+        squareFeet: parseInt(propertyData.squareFeet),
+        propertyType: propertyData.propertyType as PropertyType,
+        isPetsAllowed: propertyData.isPetsAllowed === "true" || propertyData.isPetsAllowed === true,
+        isParkingIncluded: propertyData.isParkingIncluded === "true" || propertyData.isParkingIncluded === true,
+
+        photoUrls,
+        locationId: location.id,
+        managerCognitoId,
+
+        // ĐÚNG 100% – CHỖ QUAN TRỌNG NHẤT
+        amenities: normalizeArray(propertyData.amenities)
+          .map(mapToAmenity)
+          .filter(Boolean) as Amenity[],
+
+        highlights: normalizeArray(propertyData.highlights)
+          .map(mapToHighlight)
+          .filter(Boolean) as Highlight[],
+      },
+      include: {
+        location: true,
+        manager: true,
+      },
+    });
+
+    res.status(201).json(newProperty);
+  } catch (err: any) {
+    console.error("Error creating property:", err);
+    res.status(500).json({
+      message: "Error creating property",
+      error: err.message,
+    });
+  }
 };
 
 // ==============================
@@ -364,15 +531,37 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
 
     // === 8️⃣ Location (nếu thay đổi) ===
     if (
-      propertyData.address ||
-      propertyData.city ||
-      propertyData.state ||
-      propertyData.country ||
-      propertyData.postalCode
-    ) {
-      // TODO: Thêm xử lý geocoding nếu cần
-      console.log("🗺️ Có cập nhật location");
-    }
+  propertyData.address ||
+  propertyData.city ||
+  propertyData.state ||
+  propertyData.country ||
+  propertyData.postalCode
+) {
+  if (existingProperty.locationId) {
+    // Property đã có location -> update
+    updateData.location = {
+      update: {
+        ...(propertyData.address && { address: propertyData.address }),
+        ...(propertyData.city && { city: propertyData.city }),
+        ...(propertyData.state && { state: propertyData.state }),
+        ...(propertyData.country && { country: propertyData.country }),
+        ...(propertyData.postalCode && { postalCode: propertyData.postalCode }),
+      },
+    };
+  } else {
+    // Property chưa có location -> create mới
+    updateData.location = {
+      create: {
+        address: propertyData.address ?? "",
+        city: propertyData.city ?? "",
+        state: propertyData.state ?? "",
+        country: propertyData.country ?? "",
+        postalCode: propertyData.postalCode ?? "",
+        coordinates: undefined, // Nếu muốn geocoding, xử lý ở đây
+      },
+    };
+  }
+}
 
     // === 9️⃣ Kiểm tra nếu không có gì thay đổi ===
     if (Object.keys(updateData).length === 0) {
@@ -398,6 +587,11 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
     });
   }
 };
+
+
+// ==============================
+// 5. DELETE PROPERTY – HOÀN CHỈNH
+// ==============================
 export const deleteProperty = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
