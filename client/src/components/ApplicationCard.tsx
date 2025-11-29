@@ -1,4 +1,3 @@
-
 import { Mail, MapPin, PhoneCall } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
@@ -11,6 +10,7 @@ const ApplicationCard = ({
   const [imgSrc, setImgSrc] = useState(
     application.property.photoUrls?.[0] || "/placeholder.jpg"
   );
+
   const getTranslatedStatus = (status: string) => {
     switch (status) {
       case "Approved":
@@ -22,9 +22,7 @@ const ApplicationCard = ({
     }
   };
 
-  const formatPrice = (price: number) => {
-    return price.toLocaleString('vi-VN');
-  };
+  const formatPrice = (price: number) => price.toLocaleString("vi-VN");
 
   const statusColor =
     application.status === "Approved"
@@ -39,12 +37,34 @@ const ApplicationCard = ({
   const formatDate = (date: Date | string | undefined) => {
     if (!date) return "N/A";
     const d = new Date(date);
-    return d.toLocaleDateString("en-CA", { timeZone: "Asia/Ho_Chi_Minh" }); // Định dạng YYYY-MM-DD
+    return d.toLocaleDateString("en-CA", { timeZone: "Asia/Ho_Chi_Minh" });
   };
+
+  // --- Tính chi phí thuê ---
+  const calculateCost = (app: { startDate: string | number | Date; endDate: string | number | Date; property: { pricePerMonth: number; securityDeposit: number; applicationFee: number; }; }) => {
+    if (!app?.startDate || !app?.endDate || !app.property) return null;
+    const start = new Date(app.startDate).getTime();
+    const end = new Date(app.endDate).getTime();
+    const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+    const pricePerDay = app.property.pricePerMonth / 30;
+    const rentCost = pricePerDay * days;
+    const depositCost = app.property.securityDeposit || 0;
+    const applicationFee = app.property.applicationFee || 0;
+    return {
+      days,
+      rentCost,
+      depositCost,
+      applicationFee,
+      totalCost: rentCost + depositCost + applicationFee,
+    };
+  };
+
+  const cost = calculateCost(application);
 
   return (
     <div className="border rounded-xl overflow-hidden shadow-sm bg-white mb-4">
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between px-6 md:px-4 py-6 gap-6 lg:gap-4">
+
         {/* Property Info Section */}
         <div className="flex flex-col lg:flex-row gap-5 w-full lg:w-auto">
           <Image
@@ -66,14 +86,40 @@ const ApplicationCard = ({
                 <span>{`${application.property.location.city}, ${application.property.location.country}`}</span>
               </div>
             </div>
-            <div className="text-xl font-semibold">
+            <div className="text-xl font-semibold mb-2">
               {formatPrice(application.property.pricePerMonth)} VND{" "}
               <span className="text-sm font-normal">/ ngày</span>
             </div>
+
+            {/* --- Phần tính chi phí --- */}
+            {cost && (
+              <div className="space-y-1 text-gray-500 mt-2">
+                <div className="flex justify-between">
+                  <span>Số ngày thuê:</span>
+                  <span>{cost.days} ngày</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Tiền thuê:</span>
+                  <span>{cost.rentCost.toLocaleString()} VND</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Đặt cọc:</span>
+                  <span>{cost.depositCost.toLocaleString()} VND</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Phí hồ sơ:</span>
+                  <span>{cost.applicationFee.toLocaleString()} VND</span>
+                </div>
+                <div className="flex justify-between font-semibold mt-1">
+                  <span>Tổng thanh toán:</span>
+                  <span>{cost.totalCost.toLocaleString()} VND</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Divider - visible only on desktop */}
+        {/* Divider */}
         <div className="hidden lg:block border-[0.5px] border-primary-200 h-48" />
 
         {/* Status Section */}
@@ -103,7 +149,7 @@ const ApplicationCard = ({
           </div>
         </div>
 
-        {/* Divider - visible only on desktop */}
+        {/* Divider */}
         <div className="hidden lg:block border-[0.5px] border-primary-200 h-48" />
 
         {/* Contact Person Section */}

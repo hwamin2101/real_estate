@@ -6409,6 +6409,8 @@ export namespace Prisma {
     phoneNumber: string | null
     message: string | null
     leaseId: number | null
+    startDate: Date | null
+    endDate: Date | null
   }
 
   export type ApplicationMaxAggregateOutputType = {
@@ -6422,6 +6424,8 @@ export namespace Prisma {
     phoneNumber: string | null
     message: string | null
     leaseId: number | null
+    startDate: Date | null
+    endDate: Date | null
   }
 
   export type ApplicationCountAggregateOutputType = {
@@ -6435,6 +6439,8 @@ export namespace Prisma {
     phoneNumber: number
     message: number
     leaseId: number
+    startDate: number
+    endDate: number
     _all: number
   }
 
@@ -6462,6 +6468,8 @@ export namespace Prisma {
     phoneNumber?: true
     message?: true
     leaseId?: true
+    startDate?: true
+    endDate?: true
   }
 
   export type ApplicationMaxAggregateInputType = {
@@ -6475,6 +6483,8 @@ export namespace Prisma {
     phoneNumber?: true
     message?: true
     leaseId?: true
+    startDate?: true
+    endDate?: true
   }
 
   export type ApplicationCountAggregateInputType = {
@@ -6488,6 +6498,8 @@ export namespace Prisma {
     phoneNumber?: true
     message?: true
     leaseId?: true
+    startDate?: true
+    endDate?: true
     _all?: true
   }
 
@@ -6588,6 +6600,8 @@ export namespace Prisma {
     phoneNumber: string
     message: string | null
     leaseId: number | null
+    startDate: Date | null
+    endDate: Date | null
     _count: ApplicationCountAggregateOutputType | null
     _avg: ApplicationAvgAggregateOutputType | null
     _sum: ApplicationSumAggregateOutputType | null
@@ -6620,6 +6634,8 @@ export namespace Prisma {
     phoneNumber?: boolean
     message?: boolean
     leaseId?: boolean
+    startDate?: boolean
+    endDate?: boolean
     property?: boolean | PropertyDefaultArgs<ExtArgs>
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     lease?: boolean | Application$leaseArgs<ExtArgs>
@@ -6636,6 +6652,8 @@ export namespace Prisma {
     phoneNumber?: boolean
     message?: boolean
     leaseId?: boolean
+    startDate?: boolean
+    endDate?: boolean
     property?: boolean | PropertyDefaultArgs<ExtArgs>
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     lease?: boolean | Application$leaseArgs<ExtArgs>
@@ -6652,6 +6670,8 @@ export namespace Prisma {
     phoneNumber?: boolean
     message?: boolean
     leaseId?: boolean
+    startDate?: boolean
+    endDate?: boolean
     property?: boolean | PropertyDefaultArgs<ExtArgs>
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
     lease?: boolean | Application$leaseArgs<ExtArgs>
@@ -6668,9 +6688,11 @@ export namespace Prisma {
     phoneNumber?: boolean
     message?: boolean
     leaseId?: boolean
+    startDate?: boolean
+    endDate?: boolean
   }
 
-  export type ApplicationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "applicationDate" | "status" | "propertyId" | "tenantCognitoId" | "name" | "email" | "phoneNumber" | "message" | "leaseId", ExtArgs["result"]["application"]>
+  export type ApplicationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "applicationDate" | "status" | "propertyId" | "tenantCognitoId" | "name" | "email" | "phoneNumber" | "message" | "leaseId" | "startDate" | "endDate", ExtArgs["result"]["application"]>
   export type ApplicationInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     property?: boolean | PropertyDefaultArgs<ExtArgs>
     tenant?: boolean | TenantDefaultArgs<ExtArgs>
@@ -6705,6 +6727,8 @@ export namespace Prisma {
       phoneNumber: string
       message: string | null
       leaseId: number | null
+      startDate: Date | null
+      endDate: Date | null
     }, ExtArgs["result"]["application"]>
     composites: {}
   }
@@ -7141,6 +7165,8 @@ export namespace Prisma {
     readonly phoneNumber: FieldRef<"Application", 'String'>
     readonly message: FieldRef<"Application", 'String'>
     readonly leaseId: FieldRef<"Application", 'Int'>
+    readonly startDate: FieldRef<"Application", 'DateTime'>
+    readonly endDate: FieldRef<"Application", 'DateTime'>
   }
     
 
@@ -8959,7 +8985,7 @@ export namespace Prisma {
     amountDue: number
     amountPaid: number
     dueDate: Date
-    paymentDate: Date
+    paymentDate: Date | null
     paymentStatus: $Enums.PaymentStatus
     leaseId: number
     _count: PaymentCountAggregateOutputType | null
@@ -9047,7 +9073,7 @@ export namespace Prisma {
       amountDue: number
       amountPaid: number
       dueDate: Date
-      paymentDate: Date
+      paymentDate: Date | null
       paymentStatus: $Enums.PaymentStatus
       leaseId: number
     }, ExtArgs["result"]["payment"]>
@@ -9979,7 +10005,9 @@ export namespace Prisma {
     email: 'email',
     phoneNumber: 'phoneNumber',
     message: 'message',
-    leaseId: 'leaseId'
+    leaseId: 'leaseId',
+    startDate: 'startDate',
+    endDate: 'endDate'
   };
 
   export type ApplicationScalarFieldEnum = (typeof ApplicationScalarFieldEnum)[keyof typeof ApplicationScalarFieldEnum]
@@ -10522,6 +10550,8 @@ export namespace Prisma {
     phoneNumber?: StringFilter<"Application"> | string
     message?: StringNullableFilter<"Application"> | string | null
     leaseId?: IntNullableFilter<"Application"> | number | null
+    startDate?: DateTimeNullableFilter<"Application"> | Date | string | null
+    endDate?: DateTimeNullableFilter<"Application"> | Date | string | null
     property?: XOR<PropertyScalarRelationFilter, PropertyWhereInput>
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
     lease?: XOR<LeaseNullableScalarRelationFilter, LeaseWhereInput> | null
@@ -10538,6 +10568,8 @@ export namespace Prisma {
     phoneNumber?: SortOrder
     message?: SortOrderInput | SortOrder
     leaseId?: SortOrderInput | SortOrder
+    startDate?: SortOrderInput | SortOrder
+    endDate?: SortOrderInput | SortOrder
     property?: PropertyOrderByWithRelationInput
     tenant?: TenantOrderByWithRelationInput
     lease?: LeaseOrderByWithRelationInput
@@ -10557,6 +10589,8 @@ export namespace Prisma {
     email?: StringFilter<"Application"> | string
     phoneNumber?: StringFilter<"Application"> | string
     message?: StringNullableFilter<"Application"> | string | null
+    startDate?: DateTimeNullableFilter<"Application"> | Date | string | null
+    endDate?: DateTimeNullableFilter<"Application"> | Date | string | null
     property?: XOR<PropertyScalarRelationFilter, PropertyWhereInput>
     tenant?: XOR<TenantScalarRelationFilter, TenantWhereInput>
     lease?: XOR<LeaseNullableScalarRelationFilter, LeaseWhereInput> | null
@@ -10573,6 +10607,8 @@ export namespace Prisma {
     phoneNumber?: SortOrder
     message?: SortOrderInput | SortOrder
     leaseId?: SortOrderInput | SortOrder
+    startDate?: SortOrderInput | SortOrder
+    endDate?: SortOrderInput | SortOrder
     _count?: ApplicationCountOrderByAggregateInput
     _avg?: ApplicationAvgOrderByAggregateInput
     _max?: ApplicationMaxOrderByAggregateInput
@@ -10594,6 +10630,8 @@ export namespace Prisma {
     phoneNumber?: StringWithAggregatesFilter<"Application"> | string
     message?: StringNullableWithAggregatesFilter<"Application"> | string | null
     leaseId?: IntNullableWithAggregatesFilter<"Application"> | number | null
+    startDate?: DateTimeNullableWithAggregatesFilter<"Application"> | Date | string | null
+    endDate?: DateTimeNullableWithAggregatesFilter<"Application"> | Date | string | null
   }
 
   export type LeaseWhereInput = {
@@ -10680,7 +10718,7 @@ export namespace Prisma {
     amountDue?: FloatFilter<"Payment"> | number
     amountPaid?: FloatFilter<"Payment"> | number
     dueDate?: DateTimeFilter<"Payment"> | Date | string
-    paymentDate?: DateTimeFilter<"Payment"> | Date | string
+    paymentDate?: DateTimeNullableFilter<"Payment"> | Date | string | null
     paymentStatus?: EnumPaymentStatusFilter<"Payment"> | $Enums.PaymentStatus
     leaseId?: IntFilter<"Payment"> | number
     lease?: XOR<LeaseScalarRelationFilter, LeaseWhereInput>
@@ -10691,7 +10729,7 @@ export namespace Prisma {
     amountDue?: SortOrder
     amountPaid?: SortOrder
     dueDate?: SortOrder
-    paymentDate?: SortOrder
+    paymentDate?: SortOrderInput | SortOrder
     paymentStatus?: SortOrder
     leaseId?: SortOrder
     lease?: LeaseOrderByWithRelationInput
@@ -10705,7 +10743,7 @@ export namespace Prisma {
     amountDue?: FloatFilter<"Payment"> | number
     amountPaid?: FloatFilter<"Payment"> | number
     dueDate?: DateTimeFilter<"Payment"> | Date | string
-    paymentDate?: DateTimeFilter<"Payment"> | Date | string
+    paymentDate?: DateTimeNullableFilter<"Payment"> | Date | string | null
     paymentStatus?: EnumPaymentStatusFilter<"Payment"> | $Enums.PaymentStatus
     leaseId?: IntFilter<"Payment"> | number
     lease?: XOR<LeaseScalarRelationFilter, LeaseWhereInput>
@@ -10716,7 +10754,7 @@ export namespace Prisma {
     amountDue?: SortOrder
     amountPaid?: SortOrder
     dueDate?: SortOrder
-    paymentDate?: SortOrder
+    paymentDate?: SortOrderInput | SortOrder
     paymentStatus?: SortOrder
     leaseId?: SortOrder
     _count?: PaymentCountOrderByAggregateInput
@@ -10734,7 +10772,7 @@ export namespace Prisma {
     amountDue?: FloatWithAggregatesFilter<"Payment"> | number
     amountPaid?: FloatWithAggregatesFilter<"Payment"> | number
     dueDate?: DateTimeWithAggregatesFilter<"Payment"> | Date | string
-    paymentDate?: DateTimeWithAggregatesFilter<"Payment"> | Date | string
+    paymentDate?: DateTimeNullableWithAggregatesFilter<"Payment"> | Date | string | null
     paymentStatus?: EnumPaymentStatusWithAggregatesFilter<"Payment"> | $Enums.PaymentStatus
     leaseId?: IntWithAggregatesFilter<"Payment"> | number
   }
@@ -11080,6 +11118,8 @@ export namespace Prisma {
     email: string
     phoneNumber: string
     message?: string | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
     property: PropertyCreateNestedOneWithoutApplicationsInput
     tenant: TenantCreateNestedOneWithoutApplicationsInput
     lease?: LeaseCreateNestedOneWithoutApplicationInput
@@ -11096,6 +11136,8 @@ export namespace Prisma {
     phoneNumber: string
     message?: string | null
     leaseId?: number | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
   }
 
   export type ApplicationUpdateInput = {
@@ -11105,6 +11147,8 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     phoneNumber?: StringFieldUpdateOperationsInput | string
     message?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     property?: PropertyUpdateOneRequiredWithoutApplicationsNestedInput
     tenant?: TenantUpdateOneRequiredWithoutApplicationsNestedInput
     lease?: LeaseUpdateOneWithoutApplicationNestedInput
@@ -11121,6 +11165,8 @@ export namespace Prisma {
     phoneNumber?: StringFieldUpdateOperationsInput | string
     message?: NullableStringFieldUpdateOperationsInput | string | null
     leaseId?: NullableIntFieldUpdateOperationsInput | number | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type ApplicationCreateManyInput = {
@@ -11134,6 +11180,8 @@ export namespace Prisma {
     phoneNumber: string
     message?: string | null
     leaseId?: number | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
   }
 
   export type ApplicationUpdateManyMutationInput = {
@@ -11143,6 +11191,8 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     phoneNumber?: StringFieldUpdateOperationsInput | string
     message?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type ApplicationUncheckedUpdateManyInput = {
@@ -11156,6 +11206,8 @@ export namespace Prisma {
     phoneNumber?: StringFieldUpdateOperationsInput | string
     message?: NullableStringFieldUpdateOperationsInput | string | null
     leaseId?: NullableIntFieldUpdateOperationsInput | number | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type LeaseCreateInput = {
@@ -11235,7 +11287,7 @@ export namespace Prisma {
     amountDue: number
     amountPaid: number
     dueDate: Date | string
-    paymentDate: Date | string
+    paymentDate?: Date | string | null
     paymentStatus: $Enums.PaymentStatus
     lease: LeaseCreateNestedOneWithoutPaymentsInput
   }
@@ -11245,7 +11297,7 @@ export namespace Prisma {
     amountDue: number
     amountPaid: number
     dueDate: Date | string
-    paymentDate: Date | string
+    paymentDate?: Date | string | null
     paymentStatus: $Enums.PaymentStatus
     leaseId: number
   }
@@ -11254,7 +11306,7 @@ export namespace Prisma {
     amountDue?: FloatFieldUpdateOperationsInput | number
     amountPaid?: FloatFieldUpdateOperationsInput | number
     dueDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    paymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     lease?: LeaseUpdateOneRequiredWithoutPaymentsNestedInput
   }
@@ -11264,7 +11316,7 @@ export namespace Prisma {
     amountDue?: FloatFieldUpdateOperationsInput | number
     amountPaid?: FloatFieldUpdateOperationsInput | number
     dueDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    paymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     leaseId?: IntFieldUpdateOperationsInput | number
   }
@@ -11274,7 +11326,7 @@ export namespace Prisma {
     amountDue: number
     amountPaid: number
     dueDate: Date | string
-    paymentDate: Date | string
+    paymentDate?: Date | string | null
     paymentStatus: $Enums.PaymentStatus
     leaseId: number
   }
@@ -11283,7 +11335,7 @@ export namespace Prisma {
     amountDue?: FloatFieldUpdateOperationsInput | number
     amountPaid?: FloatFieldUpdateOperationsInput | number
     dueDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    paymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   }
 
@@ -11292,7 +11344,7 @@ export namespace Prisma {
     amountDue?: FloatFieldUpdateOperationsInput | number
     amountPaid?: FloatFieldUpdateOperationsInput | number
     dueDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    paymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
     leaseId?: IntFieldUpdateOperationsInput | number
   }
@@ -11782,6 +11834,17 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type PropertyScalarRelationFilter = {
     is?: PropertyWhereInput
     isNot?: PropertyWhereInput
@@ -11808,6 +11871,8 @@ export namespace Prisma {
     phoneNumber?: SortOrder
     message?: SortOrder
     leaseId?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
   }
 
   export type ApplicationAvgOrderByAggregateInput = {
@@ -11827,6 +11892,8 @@ export namespace Prisma {
     phoneNumber?: SortOrder
     message?: SortOrder
     leaseId?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
   }
 
   export type ApplicationMinOrderByAggregateInput = {
@@ -11840,6 +11907,8 @@ export namespace Prisma {
     phoneNumber?: SortOrder
     message?: SortOrder
     leaseId?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
   }
 
   export type ApplicationSumOrderByAggregateInput = {
@@ -11874,6 +11943,20 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type ApplicationNullableScalarRelationFilter = {
@@ -12515,6 +12598,10 @@ export namespace Prisma {
     set?: string | null
   }
 
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
   export type PropertyUpdateOneRequiredWithoutApplicationsNestedInput = {
     create?: XOR<PropertyCreateWithoutApplicationsInput, PropertyUncheckedCreateWithoutApplicationsInput>
     connectOrCreate?: PropertyCreateOrConnectWithoutApplicationsInput
@@ -12876,6 +12963,17 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type NestedEnumApplicationStatusWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.ApplicationStatus | EnumApplicationStatusFieldRefInput<$PrismaModel>
     in?: $Enums.ApplicationStatus[] | ListEnumApplicationStatusFieldRefInput<$PrismaModel>
@@ -12901,6 +12999,20 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type NestedEnumPaymentStatusFilter<$PrismaModel = never> = {
@@ -12978,6 +13090,8 @@ export namespace Prisma {
     email: string
     phoneNumber: string
     message?: string | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
     tenant: TenantCreateNestedOneWithoutApplicationsInput
     lease?: LeaseCreateNestedOneWithoutApplicationInput
   }
@@ -12992,6 +13106,8 @@ export namespace Prisma {
     phoneNumber: string
     message?: string | null
     leaseId?: number | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
   }
 
   export type ApplicationCreateOrConnectWithoutPropertyInput = {
@@ -13163,6 +13279,8 @@ export namespace Prisma {
     phoneNumber?: StringFilter<"Application"> | string
     message?: StringNullableFilter<"Application"> | string | null
     leaseId?: IntNullableFilter<"Application"> | number | null
+    startDate?: DateTimeNullableFilter<"Application"> | Date | string | null
+    endDate?: DateTimeNullableFilter<"Application"> | Date | string | null
   }
 
   export type TenantUpsertWithWhereUniqueWithoutFavoritesInput = {
@@ -13430,6 +13548,8 @@ export namespace Prisma {
     email: string
     phoneNumber: string
     message?: string | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
     property: PropertyCreateNestedOneWithoutApplicationsInput
     lease?: LeaseCreateNestedOneWithoutApplicationInput
   }
@@ -13444,6 +13564,8 @@ export namespace Prisma {
     phoneNumber: string
     message?: string | null
     leaseId?: number | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
   }
 
   export type ApplicationCreateOrConnectWithoutTenantInput = {
@@ -13951,6 +14073,8 @@ export namespace Prisma {
     email: string
     phoneNumber: string
     message?: string | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
     property: PropertyCreateNestedOneWithoutApplicationsInput
     tenant: TenantCreateNestedOneWithoutApplicationsInput
   }
@@ -13965,6 +14089,8 @@ export namespace Prisma {
     email: string
     phoneNumber: string
     message?: string | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
   }
 
   export type ApplicationCreateOrConnectWithoutLeaseInput = {
@@ -13976,7 +14102,7 @@ export namespace Prisma {
     amountDue: number
     amountPaid: number
     dueDate: Date | string
-    paymentDate: Date | string
+    paymentDate?: Date | string | null
     paymentStatus: $Enums.PaymentStatus
   }
 
@@ -13985,7 +14111,7 @@ export namespace Prisma {
     amountDue: number
     amountPaid: number
     dueDate: Date | string
-    paymentDate: Date | string
+    paymentDate?: Date | string | null
     paymentStatus: $Enums.PaymentStatus
   }
 
@@ -14111,6 +14237,8 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     phoneNumber?: StringFieldUpdateOperationsInput | string
     message?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     property?: PropertyUpdateOneRequiredWithoutApplicationsNestedInput
     tenant?: TenantUpdateOneRequiredWithoutApplicationsNestedInput
   }
@@ -14125,6 +14253,8 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     phoneNumber?: StringFieldUpdateOperationsInput | string
     message?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type PaymentUpsertWithWhereUniqueWithoutLeaseInput = {
@@ -14151,7 +14281,7 @@ export namespace Prisma {
     amountDue?: FloatFilter<"Payment"> | number
     amountPaid?: FloatFilter<"Payment"> | number
     dueDate?: DateTimeFilter<"Payment"> | Date | string
-    paymentDate?: DateTimeFilter<"Payment"> | Date | string
+    paymentDate?: DateTimeNullableFilter<"Payment"> | Date | string | null
     paymentStatus?: EnumPaymentStatusFilter<"Payment"> | $Enums.PaymentStatus
     leaseId?: IntFilter<"Payment"> | number
   }
@@ -14233,6 +14363,8 @@ export namespace Prisma {
     phoneNumber: string
     message?: string | null
     leaseId?: number | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
   }
 
   export type LeaseUpdateWithoutPropertyInput = {
@@ -14272,6 +14404,8 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     phoneNumber?: StringFieldUpdateOperationsInput | string
     message?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     tenant?: TenantUpdateOneRequiredWithoutApplicationsNestedInput
     lease?: LeaseUpdateOneWithoutApplicationNestedInput
   }
@@ -14286,6 +14420,8 @@ export namespace Prisma {
     phoneNumber?: StringFieldUpdateOperationsInput | string
     message?: NullableStringFieldUpdateOperationsInput | string | null
     leaseId?: NullableIntFieldUpdateOperationsInput | number | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type ApplicationUncheckedUpdateManyWithoutPropertyInput = {
@@ -14298,6 +14434,8 @@ export namespace Prisma {
     phoneNumber?: StringFieldUpdateOperationsInput | string
     message?: NullableStringFieldUpdateOperationsInput | string | null
     leaseId?: NullableIntFieldUpdateOperationsInput | number | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type TenantUpdateWithoutFavoritesInput = {
@@ -14463,6 +14601,8 @@ export namespace Prisma {
     phoneNumber: string
     message?: string | null
     leaseId?: number | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
   }
 
   export type LeaseCreateManyTenantInput = {
@@ -14629,6 +14769,8 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     phoneNumber?: StringFieldUpdateOperationsInput | string
     message?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     property?: PropertyUpdateOneRequiredWithoutApplicationsNestedInput
     lease?: LeaseUpdateOneWithoutApplicationNestedInput
   }
@@ -14643,6 +14785,8 @@ export namespace Prisma {
     phoneNumber?: StringFieldUpdateOperationsInput | string
     message?: NullableStringFieldUpdateOperationsInput | string | null
     leaseId?: NullableIntFieldUpdateOperationsInput | number | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type ApplicationUncheckedUpdateManyWithoutTenantInput = {
@@ -14655,6 +14799,8 @@ export namespace Prisma {
     phoneNumber?: StringFieldUpdateOperationsInput | string
     message?: NullableStringFieldUpdateOperationsInput | string | null
     leaseId?: NullableIntFieldUpdateOperationsInput | number | null
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type LeaseUpdateWithoutTenantInput = {
@@ -14787,7 +14933,7 @@ export namespace Prisma {
     amountDue: number
     amountPaid: number
     dueDate: Date | string
-    paymentDate: Date | string
+    paymentDate?: Date | string | null
     paymentStatus: $Enums.PaymentStatus
   }
 
@@ -14795,7 +14941,7 @@ export namespace Prisma {
     amountDue?: FloatFieldUpdateOperationsInput | number
     amountPaid?: FloatFieldUpdateOperationsInput | number
     dueDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    paymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   }
 
@@ -14804,7 +14950,7 @@ export namespace Prisma {
     amountDue?: FloatFieldUpdateOperationsInput | number
     amountPaid?: FloatFieldUpdateOperationsInput | number
     dueDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    paymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   }
 
@@ -14813,7 +14959,7 @@ export namespace Prisma {
     amountDue?: FloatFieldUpdateOperationsInput | number
     amountPaid?: FloatFieldUpdateOperationsInput | number
     dueDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    paymentDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    paymentDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     paymentStatus?: EnumPaymentStatusFieldUpdateOperationsInput | $Enums.PaymentStatus
   }
 

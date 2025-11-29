@@ -47,7 +47,7 @@ const PaymentMethod = () => {
                 <div className="flex items-start gap-5">
                   <h3 className="text-lg font-semibold">Thẻ Visa </h3>
                   <span className="text-sm font-medium border border-primary-700 text-primary-700 px-3 py-1 rounded-full">
-                     Mặc định
+                    Mặc định
                   </span>
                 </div>
                 <div className="text-sm text-gray-500 flex items-center">

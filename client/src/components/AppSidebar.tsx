@@ -13,6 +13,7 @@ import {
   Building,
   CheckCircle,
   FileText,
+  Wallet,
   Heart,
   Home,
   Menu,
@@ -22,6 +23,8 @@ import {
 import { NAVBAR_HEIGHT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+
+
 
 const AppSidebar = ({ userType }: AppSidebarProps) => {
   const pathname = usePathname();
@@ -47,6 +50,7 @@ const AppSidebar = ({ userType }: AppSidebarProps) => {
             href: "/tenants/applications",
           },
           { icon: Home, label: "Nơi ở", href: "/tenants/residences" },
+          { icon: Wallet, label: "Thanh toán", href: "/tenants/payments" },
           { icon: Settings, label: "Cài đặt", href: "/tenants/settings" },
         ];
 

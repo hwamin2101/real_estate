@@ -167,11 +167,15 @@ model Lease {
 model Payment {
   id            Int           @id @default(autoincrement())
   amountDue     Float
-  amountPaid    Float
+  amountPaid    Float         @default(0)
   dueDate       DateTime
-  paymentDate   DateTime
-  paymentStatus PaymentStatus
+  paymentDate   DateTime?
+  paymentStatus PaymentStatus @default(Pending)
   leaseId       Int
+  stripePaymentId String?     
+  vnpayTxnRef String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   lease Lease @relation(fields: [leaseId], references: [id])
 }
