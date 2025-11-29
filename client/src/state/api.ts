@@ -123,6 +123,15 @@ export const api = createApi({
         });
       },
     }),
+    getApplication: build.query<Application, number>({
+      query: (id) => `applications/${id}`, 
+      providesTags: ["Applications"],
+      async onQueryStarted(_, { queryFulfilled }) {
+        await withToast(queryFulfilled, {
+          error: "Không thể tải chi tiết hợp đồng.",
+        });
+      },
+    }),
 
     // === CẬP NHẬT CĂN HỘ ===
     updateProperty: build.mutation<Property, { id: number } & Partial<Property> & { photos?: File[]; deletePhotoUrls?: string[] }>({
@@ -241,6 +250,28 @@ export const api = createApi({
       },
     }),
 
+
+
+        // === PAYMENT ENDPOINTS ===
+    createVNPayPayment: build.mutation<{ paymentUrl: string }, { paymentId: number }>({
+      query: (body) => ({
+        url: "/payment/vnpay",
+        method: "POST",
+        body,
+      }),
+    }),
+
+    createStripeSession: build.mutation<
+      { url: string },
+      { applicationId: number; paymentId: number }
+    >({
+      query: ({ applicationId, paymentId }) => ({
+        url: `/payment/applications/${applicationId}/pay/stripe`,
+        method: "POST",
+        body: { paymentId },
+      }),
+    }),
+
     // === MANAGER ENDPOINTS ===
     getManagerProperties: build.query<Property[], string>({
       query: (cognitoId) => `managers/${cognitoId}/properties`,
@@ -352,6 +383,12 @@ export const api = createApi({
       },
     }),
 
+    
+    getApplicationPaymentSchedule: build.query<Payment[], number>({
+      query: (applicationId) => `applications/${applicationId}/payment-schedule`,
+      providesTags: ["Payments"],
+    }),
+
     // === APPLICATION ENDPOINTS ===
     getApplications: build.query<
       Application[],
@@ -422,10 +459,13 @@ export const {
   useGetLeasesQuery,
   useGetPropertyLeasesQuery,
   useGetPaymentsQuery,
+  useGetApplicationQuery,
   useGetApplicationsQuery,
   useUpdateApplicationStatusMutation,
   useCreateApplicationMutation,
-  // === THÊM 2 HOOK MỚI ===
   useUpdatePropertyMutation,
   useDeletePropertyMutation,
+  useCreateVNPayPaymentMutation,
+  useCreateStripeSessionMutation,
+  useGetApplicationPaymentScheduleQuery,
 } = api;

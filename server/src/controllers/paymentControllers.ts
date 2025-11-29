@@ -90,49 +90,60 @@ export const createStripeCheckoutSession = async (req: Request, res: Response) =
   }
 };
 
-export const stripeWebhook = async (req: Request, res: Response, next: NextFunction) => {
-  const sig = req.headers["stripe-signature"];
+export const stripeWebhook = async (req: Request, res: Response): Promise<void> => {
+  const sig = req.headers["stripe-signature"] as string;
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  console.log("Headers:", req.headers);
+console.log("Raw body length:", req.body.length);
 
-  if (!webhookSecret || !sig) {
-    console.warn("Missing Stripe webhook secret/signature");
-    return res.status(200).send("OK");
+
+  if (!sig || !webhookSecret) {
+    console.warn("[Webhook] Missing signature or secret");
+    res.status(200).send("OK");
+    return;
   }
 
   let event: Stripe.Event;
 
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
-    console.log(`[STRIPE] Webhook verified: ${event.type}`);
+    console.log(`[Webhook] Verified: ${event.type}`);
+    console.log("[Webhook] Event type:", event.type);
+    console.log("[Webhook] Event object:", event.data.object);
+
   } catch (err: any) {
-    console.error(`[STRIPE] Signature verification failed:`, err.message);
-    return res.status(200).send(`Webhook Error: ${err.message}`);
+    console.error(`[Webhook] Verification failed: ${err.message}`);
+    res.status(200).send(`Webhook Error: ${err.message}`);
+    return;
   }
 
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
+  try {
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object as Stripe.Checkout.Session;
 
-    if (session.payment_status === "paid") {
-      const paymentId = session.metadata?.paymentId;
-      if (paymentId) {
-        try {
+      if (session.payment_status === "paid") {
+        const paymentId = session.metadata?.paymentId;
+
+        if (paymentId) {
           await prisma.payment.update({
             where: { id: Number(paymentId) },
             data: {
               paymentStatus: "Paid",
-              amountPaid: session.amount_total || 0,
+              amountPaid: session.amount_total! / 100,
               paymentDate: new Date(),
               stripePaymentId: session.id,
             },
           });
-          console.log(`[STRIPE SUCCESS] Payment ID ${paymentId} updated to Paid`);
-        } catch (dbErr) {
-          console.error("DB update failed:", dbErr);
+
+          console.log(`[Webhook] Payment ${paymentId} → Paid`);
         }
       }
     }
+  } catch (dbError: any) {
+    console.error("[Webhook] DB error (still 200):", dbError.message);
   }
 
+  // không return response
   res.status(200).json({ received: true });
 };
 

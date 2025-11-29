@@ -201,14 +201,19 @@ export const updateApplicationStatus = async (
   try {
     const { id } = req.params;
     const { status } = req.body;
-    console.log("status:", status);
+
+    const applicationId = Number(id);
 
     const application = await prisma.application.findUnique({
-      where: { id: Number(id) },
+      where: { id: applicationId },
       include: {
-        property: true,
-        tenant: true,
-        lease: true, // Bao gồm lease để kiểm tra
+        property: {
+          select: {
+            pricePerMonth: true,
+            securityDeposit: true,
+          },
+        },
+        lease: true,
       },
     });
 
@@ -218,59 +223,174 @@ export const updateApplicationStatus = async (
     }
 
     if (status === "Approved") {
-      const newLease = await prisma.lease.create({
-        data: {
-          startDate: application.startDate || new Date(), // Sử dụng startDate từ Application
-          endDate: application.endDate || new Date(new Date().setFullYear(new Date().getFullYear() + 1)), // Sử dụng endDate từ Application
-          rent: application.property.pricePerMonth,
-          deposit: application.property.securityDeposit,
-          propertyId: application.propertyId,
-          tenantCognitoId: application.tenantCognitoId,
-        },
+      // Nếu đã có lease rồi thì không tạo lại
+      if (application.lease) {
+        await prisma.application.update({
+          where: { id: applicationId },
+          data: { status: "Approved" },
+        });
+
+        const updated = await prisma.application.findUnique({
+          where: { id: applicationId },
+          include: { property: true, tenant: true, lease: true },
+        });
+
+        res.json(updated);
+        return;
+      }
+
+      const startDate = application.startDate || new Date();
+      const endDate = application.endDate || new Date(startDate.getFullYear() + 1, startDate.getMonth(), startDate.getDate());
+
+      // Tạo lease + tất cả payments trong transaction (an toàn)
+      const result = await prisma.$transaction(async (tx) => {
+        // 1. Tạo Lease
+        const lease = await tx.lease.create({
+          data: {
+            startDate,
+            endDate,
+            rent: application.property.pricePerMonth,
+            deposit: application.property.securityDeposit,
+            propertyId: application.propertyId,
+            tenantCognitoId: application.tenantCognitoId,
+          },
+        });
+
+ // 2. Tạo danh sách Payment (12 tháng hoặc theo số tháng thực tế)
+const payments = [];
+
+let currentDueDate = new Date(startDate);
+currentDueDate.setDate(1); // Bắt đầu từ ngày 1 của tháng
+
+while (currentDueDate <= endDate) {
+  // ← TẠO BIẾN payment TRƯỚC KHI PUSH!
+  const payment = await tx.payment.create({
+    data: {
+      leaseId: lease.id,
+      amountDue: application.property.pricePerMonth,
+      dueDate: new Date(currentDueDate),
+      paymentStatus: "Pending",
+    },
+  });
+
+  payments.push(payment); // ← ĐÚNG RỒI! payment (không phải payments)
+
+  // Tăng đúng 1 tháng
+  currentDueDate.setMonth(currentDueDate.getMonth() + 1);
+}   
+
+        // Cập nhật application để nối với lease
+        await tx.application.update({
+          where: { id: applicationId },
+          data: {
+            status: "Approved",
+            leaseId: lease.id,
+          },
+        });
+
+        return { lease, payments };
       });
 
-      // Update the property to connect the tenant
-      await prisma.property.update({
-        where: { id: application.propertyId },
-        data: {
-          tenants: {
-            connect: { cognitoId: application.tenantCognitoId },
+      console.log(`Tạo thành công lease ID ${result.lease.id} với ${result.payments.length} kỳ thanh toán`);
+
+      // Trả về application đã cập nhật
+      const updatedApp = await prisma.application.findUnique({
+        where: { id: applicationId },
+        include: {
+          property: true,
+          tenant: true,
+          lease: {
+            include: {
+              payments: {
+                orderBy: { dueDate: "asc" },
+              },
+            },
           },
         },
       });
 
-      // Update the application with the new lease ID
-      await prisma.application.update({
-        where: { id: Number(id) },
-        data: { status, leaseId: newLease.id },
-        include: {
-          property: true,
-          tenant: true,
-          lease: true,
-        },
-      });
+      res.json(updatedApp);
     } else {
-      // Update the application status (for both "Denied" and other statuses)
+      // Các trạng thái khác: Denied, Pending...
       await prisma.application.update({
-        where: { id: Number(id) },
+        where: { id: applicationId },
         data: { status },
       });
-    }
 
-    // Respond with the updated application details
-    const updatedApplication = await prisma.application.findUnique({
-      where: { id: Number(id) },
+      const updated = await prisma.application.findUnique({
+        where: { id: applicationId },
+        include: { property: true, tenant: true, lease: true },
+      });
+
+      res.json(updated);
+    }
+  } catch (error: any) {
+    console.error("Error updating application status:", error);
+    res.status(500).json({ message: error.message || "Lỗi server" });
+  }
+};
+export const getApplicationById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const applicationId = Number(id);
+
+    const application = await prisma.application.findUnique({
+      where: { id: applicationId },
       include: {
-        property: true,
+        property: {
+          include: {
+            location: true,
+            manager: true,
+          },
+        },
         tenant: true,
-        lease: true,
+        lease: {
+          include: {
+            payments: {
+              orderBy: { dueDate: "asc" },
+            },
+          },
+        },
       },
     });
 
-    res.json(updatedApplication);
+    if (!application) {
+      return res.status(404).json({ message: "Application not found" });
+    }
+
+    // ĐẢM BẢO middleware auth đã gán req.user đúng cách
+if (!req.user || !req.user.sub || !req.user.role) {
+  return res.status(401).json({ message: "Unauthorized - Missing user info" });
+}
+
+const userId = req.user.sub;      // ← Dùng sub (cognitoId)
+const userRole = req.user.role;   // ← role: "tenant" | "manager"
+
+    if (!userId || !userRole) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Tenant chỉ được xem đơn của mình
+    if (userRole === "tenant" && application.tenantCognitoId !== userId) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    // Manager chỉ được xem đơn của căn hộ mình quản lý
+    if (userRole === "manager") {
+      const isOwner = await prisma.property.findFirst({
+        where: {
+          id: application.propertyId,
+          managerCognitoId: userId,
+        },
+      });
+      if (!isOwner) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+    }
+
+    res.json(application);
   } catch (error: any) {
-    res
-      .status(500)
-      .json({ message: `Error updating application status: ${error.message}` });
+    console.error("Error in getApplicationById:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };

@@ -221,10 +221,125 @@ export const createProperty = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  // (giữ nguyên như cũ)
-  // ... (đoạn create)
-};
+  try {
+    const files = req.files as Express.Multer.File[];
+    const {
+      address,
+      city,
+      state,
+      country,
+      postalCode,
+      managerCognitoId,
+      ...propertyData
+    } = req.body;
 
+    const photoUrls = await Promise.all(
+      files.map(async (file) => {
+        const uploadParams = {
+          Bucket: process.env.S3_BUCKET_NAME!,
+          Key: `properties/${Date.now()}-${file.originalname}`,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+        };
+
+        const uploadResult = await new Upload({
+          client: s3Client,
+          params: uploadParams,
+        }).done();
+
+        return uploadResult.Location;
+      })
+    );
+
+    const geocodingUrl = `https://nominatim.openstreetmap.org/search?${new URLSearchParams(
+      {
+        street: address,
+        city,
+        country,
+        postalcode: postalCode,
+        format: "json",
+        limit: "1",
+      }
+    ).toString()}`;
+    const geocodingResponse = await axios.get(geocodingUrl, {
+      headers: {
+        "User-Agent": "RealEstateApp (justsomedummyemail@gmail.com)",
+      },
+    });
+    const [longitude, latitude] =
+      geocodingResponse.data[0]?.lon && geocodingResponse.data[0]?.lat
+        ? [
+            parseFloat(geocodingResponse.data[0]?.lon),
+            parseFloat(geocodingResponse.data[0]?.lat),
+          ]
+        : [0, 0];
+
+    // create location
+    const [location] = await prisma.$queryRaw<Location[]>`
+      INSERT INTO "Location" (address, city, state, country, "postalCode", coordinates)
+      VALUES (${address}, ${city}, ${state}, ${country}, ${postalCode}, ST_SetSRID(ST_MakePoint(${longitude}, ${latitude}), 4326))
+      RETURNING id, address, city, state, country, "postalCode", ST_AsText(coordinates) as coordinates;
+    `;
+
+    // create property
+    const newProperty = await prisma.property.create({
+      data: {
+        ...propertyData,
+        photoUrls,
+        locationId: location.id,
+        managerCognitoId,
+    amenities: (() => {
+      if (Array.isArray(propertyData.amenities)) return propertyData.amenities;
+      if (typeof propertyData.amenities === "string") {
+        try {
+          const parsed = JSON.parse(propertyData.amenities);
+          if (Array.isArray(parsed)) return parsed;
+          return propertyData.amenities.split(",").map((a: string) => a.replace(/[\[\]\"]/g, "").trim());
+        } catch {
+          return propertyData.amenities.split(",").map((a: string) => a.replace(/[\[\]\"]/g, "").trim());
+        }
+      }
+      return [];
+    })(),
+
+
+     highlights: (() => {
+      if (Array.isArray(propertyData.highlights)) return propertyData.highlights;
+      if (typeof propertyData.highlights === "string") {
+        try {
+          const parsed = JSON.parse(propertyData.highlights);
+          if (Array.isArray(parsed)) return parsed;
+          return propertyData.highlights.split(",").map((h: string) => h.replace(/[\[\]\"]/g, "").trim());
+        } catch {
+          return propertyData.highlights.split(",").map((h: string) => h.replace(/[\[\]\"]/g, "").trim());
+        }
+      }
+      return [];
+    })(),
+
+        isPetsAllowed: propertyData.isPetsAllowed === "true",
+        isParkingIncluded: propertyData.isParkingIncluded === "true",
+        pricePerMonth: parseFloat(propertyData.pricePerMonth),
+        securityDeposit: parseFloat(propertyData.securityDeposit),
+        applicationFee: parseFloat(propertyData.applicationFee),
+        beds: parseInt(propertyData.beds),
+        baths: parseFloat(propertyData.baths),
+        squareFeet: parseInt(propertyData.squareFeet),
+      },
+      include: {
+        location: true,
+        manager: true,
+      },
+    });
+
+    res.status(201).json(newProperty);
+  } catch (err: any) {
+    console.error("Error creating property:", err); // Thêm dòng này
+    res
+    .status(500)
+    .json({ message: `Error creating property: ${err.message}` });
+  }
+};
 // ==============================
 // 4. UPDATE PROPERTY – HOÀN CHỈNH
 // ==============================

@@ -8,6 +8,7 @@ import {
   vnpayIPN,
   vnpayReturn,
 } from "../controllers/paymentControllers";
+import { webhookHandler } from "../utils/webhookHandler";
 
 const router = express.Router();
 
@@ -18,11 +19,15 @@ router.post(
   asyncHandler(createStripeCheckoutSession)
 );
 
+
+
 router.post(
   "/stripe/webhook",
   express.raw({ type: "application/json" }),
-  asyncHandler(stripeWebhook)
+  webhookHandler(stripeWebhook)
 );
+
+
 
 // VNPay
 router.post("/vnpay", authMiddleware(["tenant"]), asyncHandler(createVNPayPayment));

@@ -8,7 +8,7 @@ if (!process.env.VNP_TMNCODE || !process.env.VNP_SECRET) {
 const secret = process.env.VNP_SECRET!.trim();
 const tmnCode = process.env.VNP_TMNCODE!.trim();
 
-const hashAlgorithm: HashAlgorithm = HashAlgorithm.SHA256; // Force SHA256 for VNPAY compatibility
+const hashAlgorithm: HashAlgorithm = process.env.NODE_ENV === 'production' ? HashAlgorithm.SHA256 : HashAlgorithm.MD5; 
 
 export const vnpay = new VNPay({
   tmnCode,
