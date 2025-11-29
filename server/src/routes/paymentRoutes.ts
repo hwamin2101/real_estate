@@ -24,7 +24,7 @@ router.post(
 router.post(
   "/stripe/webhook",
   express.raw({ type: "application/json" }),
-  webhookHandler(stripeWebhook)
+  stripeWebhook
 );
 
 
