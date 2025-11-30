@@ -239,6 +239,38 @@ export const api = createApi({
       },
     }),
 
+    // === CẬP NHẬT CĂN HỘ ===
+      updateProperty: build.mutation<Property, { id: number } & Partial<Property> & { photos?: File[]; deletePhotoUrls?: string[] }>({
+        query: ({ id, formData }) => ({
+          url: `properties/${id}`,
+          method: "PATCH",
+          body: formData,
+        }),
+        invalidatesTags: (result, error, { id }) => [
+          { type: "PropertyDetails", id },
+          { type: "Properties", id },
+          { type: "Properties", id: "LIST" },
+        ],
+        async onQueryStarted(_, { queryFulfilled }) {
+          await withToast(queryFulfilled, {
+            success: "Cập nhật thành công!",
+            error: "Cập nhật thất bại.",
+          });
+        },
+      }),
+
+      // === XÓA CĂN HỘ ===
+      deleteProperty: build.mutation<void, number>({
+    query: (id) => ({
+      url: `properties/${id}`,
+      method: "DELETE",
+    }),
+    invalidatesTags: (result, error, id) => [
+      { type: "Properties", id: "LIST" },
+      { type: "PropertyDetails", id },
+    ],
+  }),
+
     // ==================== TENANTS ====================
     getTenant: build.query<Tenant, string>({
       query: (cognitoId) => `tenants/${cognitoId}`,
@@ -608,7 +640,7 @@ export const {
   useUpdateApplicationStatusMutation,
   // useCreateApplicationMutation,
   useUpdatePropertyMutation,
-  // useDeletePropertyMutation,
+  useDeletePropertyMutation,
   useCreateVNPayPaymentMutation,
   useCreateStripeSessionMutation,
   useGetApplicationPaymentScheduleQuery,
