@@ -1,6 +1,7 @@
 "use client";
 
 import ApplicationCard from "@/components/ApplicationCard";
+import ContractPreview from "@/components/ContractPreview";
 import Header from "@/components/Header";
 import Loading from "@/components/Loading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,6 +13,8 @@ import {
 import { CircleCheckBig, Download, File, Hospital } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
+import html2pdf from "html2pdf.js";
+import { createRoot } from "react-dom/client";
 
 const Applications = () => {
   const { data: authUser } = useGetAuthUserQuery();
@@ -43,6 +46,39 @@ const Applications = () => {
     if (activeTab === "all") return true;
     return application.status.toLowerCase() === activeTab;
   });
+
+  const calculateCost = (app: any) => {
+    const start = new Date(app.startDate).getTime();
+    const end = new Date(app.endDate).getTime();
+    const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+    const rentCost = (app.property.pricePerMonth / 30) * days;
+    const depositCost = app.property.securityDeposit || 0;
+    const applicationFee = app.property.applicationFee || 0;
+    return {
+      days,
+      rentCost,
+      depositCost,
+      applicationFee,
+      totalCost: rentCost + depositCost + applicationFee,
+    };
+  };
+
+  const handleDownloadPDF = (contractData: any, propertyName: string) => {
+    const element = document.createElement("div");
+    document.body.appendChild(element);
+
+    const root = createRoot(element); // Tạo root
+    root.render(<ContractPreview data={contractData} />);
+
+    html2pdf()
+      .set({ margin: 10, filename: `HopDong-${propertyName}.pdf` })
+      .from(element)
+      .save()
+      .finally(() => {
+        root.unmount();
+        document.body.removeChild(element);
+      });
+  };
 
   return (
     <div className="dashboard-container">
@@ -129,6 +165,36 @@ const Applications = () => {
                         <button
                           className={`bg-white border border-gray-300 text-gray-700 py-2 px-4
                           rounded-md flex items-center justify-center hover:bg-primary-700 hover:text-primary-50`}
+                          onClick={() => {
+                            const cost = calculateCost(application);
+
+                            const contractData = {
+                              contractDate: new Date().toLocaleDateString(),
+                              landlordName: application.manager.name,
+                              tenantName: application.tenant.name,
+                              tenantEmail: application.tenant.email,
+                              tenantPhone: application.tenant.phoneNumber,
+                              propertyName: application.property.name,
+                              address: `${application.property.location.city}, ${application.property.location.country}`,
+                              pricePerMonth: application.property.pricePerMonth,
+                              startDate: new Date(
+                                application.startDate
+                              ).toLocaleDateString(),
+                              endDate: new Date(
+                                application.endDate
+                              ).toLocaleDateString(),
+                              deposit:
+                                application.property.securityDeposit || 0,
+                              applicationFee:
+                                application.property.applicationFee || 0,
+                              totalCost: cost.totalCost,
+                              numberOfDays: cost.days,
+                            };
+                            handleDownloadPDF(
+                              contractData,
+                              application.property.name
+                            );
+                          }}
                         >
                           <Download className="w-5 h-5 mr-2" />
                           Tải hợp đồng

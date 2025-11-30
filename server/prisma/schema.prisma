@@ -139,7 +139,7 @@ model Application {
   name            String
   email           String
   phoneNumber     String
-message         String?
+  message         String?
   leaseId         Int?              @unique
   startDate       DateTime?         
   endDate         DateTime?         
