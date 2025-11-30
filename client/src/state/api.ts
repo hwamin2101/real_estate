@@ -195,6 +195,15 @@ export const api = createApi({
         });
       },
     }),
+    getApplication: build.query<Application, number>({
+      query: (id) => `applications/${id}`, 
+      providesTags: ["Applications"],
+      async onQueryStarted(_, { queryFulfilled }) {
+        await withToast(queryFulfilled, {
+          error: "Không thể tải chi tiết hợp đồng.",
+        });
+      },
+    }),
 
     markNotificationRead: build.mutation<Notification, string>({
       query: (id) => ({
@@ -316,6 +325,29 @@ export const api = createApi({
       },
     }),
 
+
+
+        // === PAYMENT ENDPOINTS ===
+    createVNPayPayment: build.mutation<{ paymentUrl: string }, { paymentId: number }>({
+      query: (body) => ({
+        url: "/payment/vnpay",
+        method: "POST",
+        body,
+      }),
+    }),
+
+    createStripeSession: build.mutation<
+      { url: string },
+      { applicationId: number; paymentId: number }
+    >({
+      query: ({ applicationId, paymentId }) => ({
+        url: `/payment/applications/${applicationId}/pay/stripe`,
+        method: "POST",
+        body: { paymentId },
+      }),
+    }),
+
+    // === MANAGER ENDPOINTS ===
     // ==================== MANAGERS ====================
     getManagerProperties: build.query<Property[], string>({
       query: (cognitoId) => `managers/${cognitoId}/properties`,
@@ -428,6 +460,12 @@ export const api = createApi({
           error: "Không thể tải thông tin thanh toán.",
         });
       },
+    }),
+
+    
+    getApplicationPaymentSchedule: build.query<Payment[], number>({
+      query: (applicationId) => `applications/${applicationId}/payment-schedule`,
+      providesTags: ["Payments"],
     }),
 
     // ==================== APPLICATIONS ====================
@@ -564,9 +602,16 @@ export const {
   useGetLeasesQuery,
   useGetPropertyLeasesQuery,
   useGetPaymentsQuery,
+  useGetApplicationQuery,
   useGetApplicationsQuery,
   useCreateApplicationMutation,
   useUpdateApplicationStatusMutation,
+  useCreateApplicationMutation,
+  useUpdatePropertyMutation,
+  useDeletePropertyMutation,
+  useCreateVNPayPaymentMutation,
+  useCreateStripeSessionMutation,
+  useGetApplicationPaymentScheduleQuery,
   useGetStatsQuery,
   useGetLeaseExpirationAlertsQuery,
   useGetPropertyPerformanceQuery,
