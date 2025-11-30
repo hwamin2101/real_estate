@@ -5,12 +5,19 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import { authMiddleware } from "./middleware/authMiddleware";
+
+
+
+
 /* ROUTE IMPORT */
 import tenantRoutes from "./routes/tenantRoutes";
 import managerRoutes from "./routes/managerRoutes";
 import propertyRoutes from "./routes/propertyRoutes";
 import leaseRoutes from "./routes/leaseRoutes";
 import applicationRoutes from "./routes/applicationRoutes";
+import statsRoutes from "./routes/statsRoutes";
+import analyticsRoutes from "./routes/analyticsRoutes"; // ✅ Thêm import
+
 
 /* CONFIGURATIONS */
 dotenv.config();
@@ -33,9 +40,13 @@ app.use("/properties", propertyRoutes);
 app.use("/leases", leaseRoutes);
 app.use("/tenants", authMiddleware(["tenant"]), tenantRoutes);
 app.use("/managers", authMiddleware(["manager"]), managerRoutes);
+app.use("/stats", authMiddleware(["manager"]), statsRoutes);
+app.use("/api/analytics", authMiddleware(["manager"]), analyticsRoutes); // ✅ Thêm route
+
+
 
 /* SERVER */
-const port = Number(process.env.PORT) || 3002;
+const port = Number(process.env.PORT) || 3001;
 app.listen(port, "0.0.0.0", () => {
   console.log(`Server running on port ${port}`);
 });

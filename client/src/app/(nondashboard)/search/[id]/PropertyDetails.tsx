@@ -1,6 +1,10 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AmenityIcons, HighlightIcons } from "@/lib/constants";
-import { formatEnumString } from "@/lib/utils";
+import {
+  AmenityIcons,
+  HighlightIcons,
+  AmenityLabels,
+  HighlightLabels,
+} from "@/lib/constants";
 import { useGetPropertyQuery } from "@/state/api";
 import { HelpCircle } from "lucide-react";
 import React from "react";
@@ -12,19 +16,21 @@ const PropertyDetails = ({ propertyId }: PropertyDetailsProps) => {
     isLoading,
   } = useGetPropertyQuery(propertyId);
 
-  if (isLoading) return <>Loading...</>;
+  if (isLoading) return <>Đang tải...</>;
   if (isError || !property) {
-    return <>Không tìm thấy căn hộ</>;
+    return <>Không tìm thấy thông tin căn hộ</>;
   }
 
   return (
     <div className="mb-6">
-      {/* Amenities */}
+      {/* Tiện nghi */}
       <div>
         <h2 className="text-xl font-semibold my-3">Tiện nghi của căn hộ</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {property.amenities.map((amenity: AmenityEnum) => {
-            const Icon = AmenityIcons[amenity as AmenityEnum] || HelpCircle;
+            const Icon = AmenityIcons[amenity] || HelpCircle;
+            const label = AmenityLabels[amenity] || amenity;
+
             return (
               <div
                 key={amenity}
@@ -32,7 +38,7 @@ const PropertyDetails = ({ propertyId }: PropertyDetailsProps) => {
               >
                 <Icon className="w-8 h-8 mb-2 text-gray-700" />
                 <span className="text-sm text-center text-gray-700">
-                  {formatEnumString(amenity)}
+                  {label}
                 </span>
               </div>
             );
@@ -40,15 +46,17 @@ const PropertyDetails = ({ propertyId }: PropertyDetailsProps) => {
         </div>
       </div>
 
-      {/* Highlights */}
+      {/* Điểm nổi bật */}
       <div className="mt-12 mb-16">
         <h3 className="text-xl font-semibold text-primary-800 dark:text-primary-100">
           Điểm nổi bật
         </h3>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mt-4 w-full">
           {property.highlights.map((highlight: HighlightEnum) => {
-            const Icon =
-              HighlightIcons[highlight as HighlightEnum] || HelpCircle;
+            const Icon = HighlightIcons[highlight] || HelpCircle;
+            const label = HighlightLabels[highlight] || highlight;
+
             return (
               <div
                 key={highlight}
@@ -56,7 +64,7 @@ const PropertyDetails = ({ propertyId }: PropertyDetailsProps) => {
               >
                 <Icon className="w-8 h-8 mb-2 text-primary-600 dark:text-primary-300" />
                 <span className="text-sm text-center text-primary-600 dark:text-primary-300">
-                  {formatEnumString(highlight)}
+                  {label}
                 </span>
               </div>
             );
@@ -64,51 +72,61 @@ const PropertyDetails = ({ propertyId }: PropertyDetailsProps) => {
         </div>
       </div>
 
-      {/* Tabs Section */}
+      {/* Tabs – Phí và chính sách */}
       <div>
         <h3 className="text-xl font-semibold text-primary-800 dark:text-primary-100 mb-5">
           Phí và Chính sách
         </h3>
+
         <p className="text-sm text-primary-600 dark:text-primary-300 mt-2">
-          Các khoản phí dưới đây được cung cấp bởi cộng đồng và có thể chưa bao gồm
-          các chi phí hoặc tiện ích bổ sung.
+          Các khoản phí dưới đây được cung cấp bởi cộng đồng và có thể chưa
+          bao gồm các chi phí hoặc tiện ích bổ sung.
         </p>
+
         <Tabs defaultValue="required-fees" className="mt-8">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="required-fees">Phí bắt buộc</TabsTrigger>
             <TabsTrigger value="pets">Thú cưng</TabsTrigger>
             <TabsTrigger value="parking">Bãi đỗ xe</TabsTrigger>
           </TabsList>
+
+          {/* Phí bắt buộc */}
           <TabsContent value="required-fees" className="w-1/3">
             <p className="font-semibold mt-5 mb-2">Phí khi chuyển vào</p>
             <hr />
+
             <div className="flex justify-between py-2 bg-secondary-50">
-              <span className="text-primary-700 font-medium">
-                Phí đăng ký
-              </span>
+              <span className="text-primary-700 font-medium">Phí đăng ký</span>
               <span className="text-primary-700">
                 {property.applicationFee.toLocaleString("vi-VN")} VND
               </span>
             </div>
+
             <hr />
+
             <div className="flex justify-between py-2 bg-secondary-50">
-              <span className="text-primary-700 font-medium">
-                Tiền đặt cọc
-              </span>
+              <span className="text-primary-700 font-medium">Tiền đặt cọc</span>
               <span className="text-primary-700">
                 {property.securityDeposit.toLocaleString("vi-VN")} VND
               </span>
             </div>
+
             <hr />
           </TabsContent>
+
+          {/* Thú cưng */}
           <TabsContent value="pets">
             <p className="font-semibold mt-5 mb-2">
-              Thú cưng {property.isPetsAllowed ? "được phép" : "không được phép"}.
+              Thú cưng{" "}
+              {property.isPetsAllowed ? "được phép" : "không được phép"}.
             </p>
           </TabsContent>
+
+          {/* Bãi đỗ xe */}
           <TabsContent value="parking">
             <p className="font-semibold mt-5 mb-2">
-              Bãi đỗ xe {property.isParkingIncluded ? "đã bao gồm" : "chưa bao gồm"}.
+              Bãi đỗ xe{" "}
+              {property.isParkingIncluded ? "đã bao gồm" : "chưa bao gồm"}.
             </p>
           </TabsContent>
         </Tabs>

@@ -1,6 +1,9 @@
 {
   "dependencies": {
     "lucide-react": "^0.548.0",
-    "react-date-range": "^2.0.1"
+    "next": "^16.0.5",
+    "react": "^19.2.0",
+    "react-date-range": "^2.0.1",
+    "react-dom": "^19.2.0"
   }
 }

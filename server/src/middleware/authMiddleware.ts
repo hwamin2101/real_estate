@@ -10,6 +10,7 @@ declare global {
   namespace Express {
     interface Request {
       user?: {
+        sub: any;
         id: string;
         role: string;
       };
@@ -30,7 +31,8 @@ export const authMiddleware = (allowedRoles: string[]) => {
       const decoded = jwt.decode(token) as DecodedToken;
       const userRole = decoded["custom:role"] || "";
       req.user = {
-        id: decoded.sub,
+        sub: decoded.sub,    // ← THÊM DÒNG NÀY (QUAN TRỌNG NHẤT!)
+        id: decoded.sub,     // ← Giữ lại nếu bạn muốn
         role: userRole,
       };
 

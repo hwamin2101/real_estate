@@ -1,3 +1,4 @@
+// src/state/api.ts
 import { cleanParams, createNewUserInDatabase, withToast } from "@/lib/utils";
 import {
   Application,
@@ -11,14 +12,86 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { fetchAuthSession, getCurrentUser } from "aws-amplify/auth";
 import { FiltersState } from ".";
 
+// ==================== TYPE USER ====================
+type User = {
+  cognitoInfo: any;
+  userInfo: Tenant | Manager;
+  userRole: string;
+  defaultLocation?: {
+    name: string;
+    latitude: number;
+    longitude: number;
+  };
+};
+
+// ==================== TYPE NOTIFICATION ====================
+export type Notification = {
+  id: string;
+  title: string;
+  message: string;
+  type: string;
+  isRead: boolean;
+  recipientCognitoId: string;
+  userRole: string;
+  relatedId?: number | null;
+  relatedType?: string | null;
+  createdAt: string;
+};
+
+// ==================== TYPE STATS RESPONSE ====================
+type StatsResponse = {
+  totalProperties: number;
+  rentedProperties: number;
+  currentMonthRevenue: number;
+  totalTenants: number;
+  applicationsToday: number;
+  occupancyRate: number;
+  totalRevenue: number;
+  monthlyRevenue: { month: string; income: number }[];
+  recentTransactions: {
+    id: number;
+    customer: string;
+    date: string;
+    amount: number;
+    status: "Pending" | "Paid" | "PartiallyPaid" | "Overdue";
+  }[];
+  propertyPerformance: {
+    name: string;
+    occupancy: number;
+    revenue: number;
+    status: string;
+  }[];
+  tenantDemographics: {
+    ageGroup: string;
+    count: number;
+    percentage: number;
+  }[];
+  geographicDistribution: {
+    location: string;
+    properties: number;
+    percentage: number;
+  }[];
+  leaseExpirations: {
+    tenant: string;
+    property: string;
+    expiryDate: string;
+    daysLeft: number;
+  }[];
+};
+
+// ==================== API SLICE ====================
 export const api = createApi({
   baseQuery: fetchBaseQuery({
-    baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
+    baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api",
     prepareHeaders: async (headers) => {
-      const session = await fetchAuthSession();
-      const { idToken } = session.tokens ?? {};
-      if (idToken) {
-        headers.set("Authorization", `Bearer ${idToken}`);
+      try {
+        const session = await fetchAuthSession();
+        const { idToken } = session.tokens ?? {};
+        if (idToken) {
+          headers.set("Authorization", `Bearer ${idToken.toString()}`);
+        }
+      } catch (error) {
+        console.warn("Không lấy được token Amplify:", error);
       }
       return headers;
     },
@@ -32,53 +105,54 @@ export const api = createApi({
     "Leases",
     "Payments",
     "Applications",
+    "Stats",
+    "Notifications",
   ],
   endpoints: (build) => ({
+    // ==================== AUTH ====================
     getAuthUser: build.query<User, void>({
-      queryFn: async (_, _queryApi, _extraoptions, fetchWithBQ) => {
+      queryFn: async () => {
         try {
           const session = await fetchAuthSession();
           const { idToken } = session.tokens ?? {};
           const user = await getCurrentUser();
-          const userRole = idToken?.payload["custom:role"] as string;
+          const userRole = (idToken?.payload["custom:role"] as string)?.toLowerCase();
 
-          const endpoint =
-            userRole === "manager"
-              ? `/managers/${user.userId}`
-              : `/tenants/${user.userId}`;
+          if (!userRole || !["manager", "tenant"].includes(userRole)) {
+            return { error: { status: 401, data: "Vai trò không hợp lệ" } };
+          }
 
-          let userDetailsResponse = await fetchWithBQ(endpoint);
+          const endpoint = userRole === "manager" ? `/managers/${user.userId}` : `/tenants/${user.userId}`;
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}${endpoint}`, {
+            headers: { Authorization: `Bearer ${idToken?.toString()}` },
+          });
 
-          if (
-            userDetailsResponse.error &&
-            userDetailsResponse.error.status === 404
-          ) {
-            userDetailsResponse = await createNewUserInDatabase(
-              user,
-              idToken,
-              userRole,
-              fetchWithBQ
-            );
+          let userDetails = await response.json();
+
+          if (response.status === 404) {
+            userDetails = await createNewUserInDatabase(user, idToken!, userRole, fetch);
           }
 
           return {
             data: {
-              cognitoInfo: { ...user },
-              userInfo: userDetailsResponse.data as Tenant | Manager,
+              cognitoInfo: user,
+              userInfo: userDetails,
               userRole,
+              defaultLocation: {
+                name: "Hà Nội, Việt Nam",
+                latitude: 21.0278,
+                longitude: 105.8342,
+              },
             },
           };
         } catch (error: any) {
-          return { error: error.message || "Không thể tải dữ liệu người dùng" };
+          return { error: { status: 500, data: error.message || "Lỗi xác thực" } };
         }
       },
     }),
 
-    // === PROPERTY ENDPOINTS ===
-    getProperties: build.query<
-      Property[],
-      Partial<FiltersState> & { favoriteIds?: number[] }
-    >({
+    // ==================== PROPERTIES ====================
+    getProperties: build.query<Property[], Partial<FiltersState> & { favoriteIds?: number[] }>({
       query: (filters) => {
         const params = cleanParams({
           location: filters.location,
@@ -89,74 +163,74 @@ export const api = createApi({
           propertyType: filters.propertyType,
           squareFeetMin: filters.squareFeet?.[0],
           squareFeetMax: filters.squareFeet?.[1],
-          amenities: Array.isArray(filters.amenities)
-            ? filters.amenities.join(",")
-            : "",
+          amenities: Array.isArray(filters.amenities) ? filters.amenities.join(",") : "",
           availableFrom: filters.availableFrom,
           favoriteIds: filters.favoriteIds?.join(","),
           latitude: filters.coordinates?.[1],
           longitude: filters.coordinates?.[0],
         });
-
         return { url: "properties", params };
       },
       providesTags: (result) =>
         result
-          ? [
-              ...result.map(({ id }) => ({ type: "Properties" as const, id })),
-              { type: "Properties", id: "LIST" },
-            ]
+          ? [...result.map(({ id }) => ({ type: "Properties" as const, id })), { type: "Properties", id: "LIST" }]
           : [{ type: "Properties", id: "LIST" }],
-      async onQueryStarted(_, { queryFulfilled }) {
-        await withToast(queryFulfilled, {
-          error: "Không thể tải danh sách căn hộ.",
-        });
-      },
     }),
 
     getProperty: build.query<Property, number>({
       query: (id) => `properties/${id}`,
       providesTags: (result, error, id) => [{ type: "PropertyDetails", id }],
+    }),
+
+    // ==================== NOTIFICATIONS ====================
+    getNotifications: build.query<Notification[], void>({
+      query: () => "notifications",
+      providesTags: (result) =>
+        result
+          ? [...result.map(({ id }) => ({ type: "Notifications" as const, id })), { type: "Notifications", id: "LIST" }]
+          : [{ type: "Notifications", id: "LIST" }],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
-          error: "Không thể tải chi tiết căn hộ.",
+          error: "Không thể tải thông báo.",
         });
       },
     }),
 
-    // === CẬP NHẬT CĂN HỘ ===
-    updateProperty: build.mutation<Property, { id: number } & Partial<Property> & { photos?: File[]; deletePhotoUrls?: string[] }>({
-      query: ({ id, formData }) => ({
-        url: `properties/${id}`,
-        method: "PATCH",
-        body: formData,
+    markNotificationRead: build.mutation<Notification, string>({
+      query: (id) => ({
+        url: `notifications/${id}/read`,
+        method: "POST",
       }),
-      invalidatesTags: (result, error, { id }) => [
-        { type: "PropertyDetails", id },
-        { type: "Properties", id },
-        { type: "Properties", id: "LIST" },
+      invalidatesTags: (result, error, id) => [
+        { type: "Notifications", id },
+        { type: "Notifications", id: "LIST" },
       ],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
-          success: "Cập nhật thành công!",
-          error: "Cập nhật thất bại.",
+          success: "Đã đánh dấu đã đọc!",
+          error: "Không thể đánh dấu đã đọc.",
         });
       },
     }),
 
-    // === XÓA CĂN HỘ ===
-    deleteProperty: build.mutation<void, number>({
-  query: (id) => ({
-    url: `properties/${id}`,
-    method: "DELETE",
-  }),
-  invalidatesTags: (result, error, id) => [
-    { type: "Properties", id: "LIST" },
-    { type: "PropertyDetails", id },
-  ],
-}),
+    deleteNotification: build.mutation<{ success: boolean; id: string }, string>({
+      query: (id) => ({
+        url: `notifications/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Notifications", id },
+        { type: "Notifications", id: "LIST" },
+      ],
+      async onQueryStarted(_, { queryFulfilled }) {
+        await withToast(queryFulfilled, {
+          success: "Đã xóa thông báo!",
+          error: "Không thể xóa thông báo.",
+        });
+      },
+    }),
 
-    // === TENANT ENDPOINTS ===
+    // ==================== TENANTS ====================
     getTenant: build.query<Tenant, string>({
       query: (cognitoId) => `tenants/${cognitoId}`,
       providesTags: (result) => [{ type: "Tenants", id: result?.id }],
@@ -201,6 +275,7 @@ export const api = createApi({
       },
     }),
 
+    // ==================== FAVORITES ====================
     addFavoriteProperty: build.mutation<
       Tenant,
       { cognitoId: string; propertyId: number }
@@ -241,7 +316,7 @@ export const api = createApi({
       },
     }),
 
-    // === MANAGER ENDPOINTS ===
+    // ==================== MANAGERS ====================
     getManagerProperties: build.query<Property[], string>({
       query: (cognitoId) => `managers/${cognitoId}/properties`,
       providesTags: (result) =>
@@ -285,6 +360,7 @@ export const api = createApi({
       invalidatesTags: (result) => [
         { type: "Properties", id: "LIST" },
         { type: "Managers", id: result?.manager?.id },
+        "Stats",
       ],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
@@ -294,8 +370,8 @@ export const api = createApi({
       },
     }),
 
-    // === LEASE ENDPOINTS ===
-    getLeases: build.query<Lease[], number>({
+    // ==================== LEASES ====================
+    getLeases: build.query<Lease[], void>({
       query: () => "leases",
       providesTags: ["Leases"],
       async onQueryStarted(_, { queryFulfilled }) {
@@ -336,12 +412,14 @@ export const api = createApi({
               property: app.property,
             })),
           };
-        } catch (err) {
-          return { error: { status: 500, data: "Không thể tải thông tin phiên người dùng" } };
+        } catch {
+          return { error: { status: 500, data: "Lỗi hệ thống" } };
         }
       },
+      providesTags: ["Leases"],
     }),
 
+    // ==================== PAYMENTS ====================
     getPayments: build.query<Payment[], number>({
       query: (leaseId) => `leases/${leaseId}/payments`,
       providesTags: ["Payments"],
@@ -352,7 +430,7 @@ export const api = createApi({
       },
     }),
 
-    // === APPLICATION ENDPOINTS ===
+    // ==================== APPLICATIONS ====================
     getApplications: build.query<
       Application[],
       { userId?: string; userType?: string }
@@ -380,7 +458,7 @@ export const api = createApi({
         method: "PUT",
         body: { status },
       }),
-      invalidatesTags: ["Applications", "Leases"],
+      invalidatesTags: ["Applications", "Leases", "Stats"],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
           success: "Cập nhật trạng thái thuê thành công!",
@@ -395,7 +473,7 @@ export const api = createApi({
         method: "POST",
         body: body,
       }),
-      invalidatesTags: ["Applications"],
+      invalidatesTags: ["Applications", "Stats"],
       async onQueryStarted(_, { queryFulfilled }) {
         await withToast(queryFulfilled, {
           success: "Yêu cầu thuê mới thành công!",
@@ -403,29 +481,98 @@ export const api = createApi({
         });
       },
     }),
+
+    // ==================== STATS ====================
+    getStats: build.query<StatsResponse, void>({
+      query: () => "stats",
+      providesTags: ["Stats"],
+      async onQueryStarted(_, { queryFulfilled }) {
+        await withToast(queryFulfilled, {
+          error: "Không thể tải dữ liệu thống kê.",
+        });
+      },
+    }),
+
+    getLeaseExpirationAlerts: build.query<
+      {
+        id: number;
+        tenant: string;
+        property: string;
+        expiryDate: string;
+        daysRemaining: number;
+        priority: "Critical" | "High" | "Low";
+      }[],
+      void
+    >({
+      query: () => "analytics/lease-expiration-alerts",
+      providesTags: ["Stats"],
+    }),
+
+    getPropertyPerformance: build.query<
+      {
+        id: number;
+        name: string;
+        occupancyRate: number;
+        monthlyRevenue: number;
+        status: string;
+      }[],
+      void
+    >({
+      query: () => "analytics/property-performance",
+      providesTags: ["Stats"],
+    }),
+
+    getTenantDemographics: build.query<
+      {
+        totalTenants: number;
+        ageGroups: Record<string, number>;
+        genderDistribution: Record<string, number>;
+      },
+      void
+    >({
+      query: () => "analytics/tenant-demographics",
+      providesTags: ["Stats"],
+    }),
+
+    getGeographicDistribution: build.query<
+      {
+        city: string;
+        propertyCount: number;
+        percentage: string;
+      }[],
+      void
+    >({
+      query: () => "analytics/geographic-distribution",
+      providesTags: ["Stats"],
+    }),
   }),
 });
 
-// === EXPORT HOOKS ===
+// ==================== EXPORT HOOKS ====================
 export const {
   useGetAuthUserQuery,
-  useUpdateTenantSettingsMutation,
-  useUpdateManagerSettingsMutation,
   useGetPropertiesQuery,
   useGetPropertyQuery,
-  useGetCurrentResidencesQuery,
-  useGetManagerPropertiesQuery,
-  useCreatePropertyMutation,
   useGetTenantQuery,
+  useGetCurrentResidencesQuery,
+  useUpdateTenantSettingsMutation,
   useAddFavoritePropertyMutation,
   useRemoveFavoritePropertyMutation,
+  useGetManagerPropertiesQuery,
+  useUpdateManagerSettingsMutation,
+  useCreatePropertyMutation,
   useGetLeasesQuery,
   useGetPropertyLeasesQuery,
   useGetPaymentsQuery,
   useGetApplicationsQuery,
-  useUpdateApplicationStatusMutation,
   useCreateApplicationMutation,
-  // === THÊM 2 HOOK MỚI ===
-  useUpdatePropertyMutation,
-  useDeletePropertyMutation,
+  useUpdateApplicationStatusMutation,
+  useGetStatsQuery,
+  useGetLeaseExpirationAlertsQuery,
+  useGetPropertyPerformanceQuery,
+  useGetTenantDemographicsQuery,
+  useGetGeographicDistributionQuery,
+  useGetNotificationsQuery,
+  useMarkNotificationReadMutation,
+  useDeleteNotificationMutation,
 } = api;
