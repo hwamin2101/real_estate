@@ -9,9 +9,20 @@ import paymentRoutes from "./routes/paymentRoutes";
 import { stripeWebhook } from "./controllers/paymentControllers";
 import applicationRoutes from "./routes/applicationRoutes";
 import leaseRoutes from "./routes/leaseRoutes";
+
+
+
+
+/* ROUTE IMPORT */
+import tenantRoutes from "./routes/tenantRoutes";
 import managerRoutes from "./routes/managerRoutes";
 import propertyRoutes from "./routes/propertyRoutes";
-import tenantRoutes from "./routes/tenantRoutes";
+// import tenantRoutes from "./routes/tenantRoutes";
+// import leaseRoutes from "./routes/leaseRoutes";
+// import applicationRoutes from "./routes/applicationRoutes";
+import statsRoutes from "./routes/statsRoutes";
+import analyticsRoutes from "./routes/analyticsRoutes"; // ✅ Thêm import
+
 
 /* CONFIG */
 dotenv.config();
@@ -52,8 +63,13 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
     message: err.message || "Lỗi server không xác định",
   });
 });
+app.use("/stats", authMiddleware(["manager"]), statsRoutes);
+app.use("/api/analytics", authMiddleware(["manager"]), analyticsRoutes); // ✅ Thêm route
+
+
 
 /* SERVER */
+// const port = Number(process.env.PORT) || 3001;
 const port = Number(process.env.PORT) || 3001;
 app.listen(port, "0.0.0.0", () => {
   console.log(`Server running on port ${port}`);

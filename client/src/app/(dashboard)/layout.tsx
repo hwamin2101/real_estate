@@ -23,7 +23,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       ) {
         router.push(
           userRole === "manager"
-            ? "/managers/properties"
+            ? "/managers/stats "
             : "/tenants/favorites",
           { scroll: false }
         );

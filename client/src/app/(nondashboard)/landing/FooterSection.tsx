@@ -19,25 +19,7 @@ const FooterSection = () => {
               RENTIFUL
             </Link>
           </div>
-          <nav className="mb-7">
-            <ul className="flex space-x-3">
-              <li>
-              <Link href="/about">Về Chúng Tôi</Link>
-                </li>
-                <li>
-                  <Link href="/contact">Liên Hệ</Link>
-                </li>
-                <li>
-                  <Link href="/faq">Câu Hỏi Thường Gặp</Link>
-                </li>
-                <li>
-                  <Link href="/terms">Điều Khoản Sử Dụng</Link>
-                </li>
-                <li>j
-                  <Link href="/privacy">Chính Sách Bảo Mật</Link>
-                </li>
-            </ul>
-          </nav>
+          
           <div className="flex space-x-4 mb-4">
             <a
               href="#"

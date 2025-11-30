@@ -19,6 +19,7 @@ import {
   Menu,
   Settings,
   X,
+  TrendingUp, // icon cho dashboard
 } from "lucide-react";
 import { NAVBAR_HEIGHT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -33,6 +34,7 @@ const AppSidebar = ({ userType }: AppSidebarProps) => {
   const navLinks =
     userType === "manager"
       ? [
+          { icon: TrendingUp, label: "Thống kê tổng quan", href: "/managers/stats" },
           { icon: Building, label: "Danh sách căn hộ", href: "/managers/properties" },
           {
             icon: FileText,
