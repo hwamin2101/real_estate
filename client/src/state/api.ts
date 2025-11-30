@@ -579,7 +579,7 @@ export const api = createApi({
         percentage: string;
       }[],
       void
-    >({
+    >({ 
       query: () => "analytics/geographic-distribution",
       providesTags: ["Stats"],
     }),
@@ -606,9 +606,9 @@ export const {
   useGetApplicationsQuery,
   useCreateApplicationMutation,
   useUpdateApplicationStatusMutation,
-  useCreateApplicationMutation,
+  // useCreateApplicationMutation,
   useUpdatePropertyMutation,
-  useDeletePropertyMutation,
+  // useDeletePropertyMutation,
   useCreateVNPayPaymentMutation,
   useCreateStripeSessionMutation,
   useGetApplicationPaymentScheduleQuery,

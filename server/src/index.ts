@@ -17,9 +17,9 @@ import leaseRoutes from "./routes/leaseRoutes";
 import tenantRoutes from "./routes/tenantRoutes";
 import managerRoutes from "./routes/managerRoutes";
 import propertyRoutes from "./routes/propertyRoutes";
-import tenantRoutes from "./routes/tenantRoutes";
-import leaseRoutes from "./routes/leaseRoutes";
-import applicationRoutes from "./routes/applicationRoutes";
+// import tenantRoutes from "./routes/tenantRoutes";
+// import leaseRoutes from "./routes/leaseRoutes";
+// import applicationRoutes from "./routes/applicationRoutes";
 import statsRoutes from "./routes/statsRoutes";
 import analyticsRoutes from "./routes/analyticsRoutes"; // ✅ Thêm import
 
@@ -69,7 +69,7 @@ app.use("/api/analytics", authMiddleware(["manager"]), analyticsRoutes); // ✅ 
 
 
 /* SERVER */
-const port = Number(process.env.PORT) || 3001;
+// const port = Number(process.env.PORT) || 3001;
 const port = Number(process.env.PORT) || 3001;
 app.listen(port, "0.0.0.0", () => {
   console.log(`Server running on port ${port}`);
