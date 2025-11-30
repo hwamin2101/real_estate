@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import bodyParser from "body-parser";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -16,29 +17,21 @@ import tenantRoutes from "./routes/tenantRoutes";
 dotenv.config();
 const app = express();
 
-
+/* ⭐ MUST COME FIRST: Stripe webhook RAW BODY */
 app.post(
   "/stripe/webhook",
   express.raw({ type: "application/json" }),
   stripeWebhook
 );
 
-
-app.use((req, res, next) => {
-  if (req.originalUrl.includes("vnp_")) {
-    req.url = req.originalUrl; 
-  }
-  next();
-});
-
-
-/* NORMAL MIDDLEWARES */
-app.use(express.json());                 
+app.use(express.json());
 app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(morgan("common"));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
-app.options("*", cors());                
+app.options("*", cors());
 
 /* ROUTES */
 app.get("/", (req, res) => {
@@ -47,9 +40,9 @@ app.get("/", (req, res) => {
 
 app.use("/payment", paymentRoutes);
 app.use("/applications", applicationRoutes);
-app.use("/properties", propertyRoutes);
-app.use("/leases", leaseRoutes);
-app.use("/tenants", authMiddleware(["tenant"]), tenantRoutes);
+app.use("/properties", propertyRoutes); 
+app.use("/leases", leaseRoutes); 
+app.use("/tenants", authMiddleware(["tenant"]), tenantRoutes); 
 app.use("/managers", authMiddleware(["manager"]), managerRoutes);
 
 /* ERROR HANDLER */

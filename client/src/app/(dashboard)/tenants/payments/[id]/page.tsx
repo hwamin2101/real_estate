@@ -56,10 +56,42 @@ const ApplicationPaymentsPage = () => {
   const lease = application.lease!;
   const now = new Date();
 
+  // 🔥 LẤY ĐÚNG DỮ LIỆU HỢP ĐỒNG
+const property = application.property;
+
+// 🔥 TÍNH SỐ NGÀY THUÊ
+const contractStart = new Date(application.startDate);
+const contractEnd = new Date(application.endDate);
+
+// Tính số ngày bao gồm cả ngày đầu và ngày cuối
+const days = Math.ceil((contractEnd.getTime() - contractStart.getTime()) / (1000 * 60 * 60 * 24));
+
+
+const pricePerMonth = lease.rent || application.property?.pricePerMonth || 0;
+const rentCost = (pricePerMonth / 30) * days;
+
+const deposit = property?.securityDeposit || 0;
+const applicationFee = property?.applicationFee || 0;
+
+
+const totalCost = Math.round(rentCost + deposit + applicationFee);
+
+
   const currentMonthPayment = payments.find((p: any) => {
     const dueDate = new Date(p.dueDate);
     return dueDate.getFullYear() === now.getFullYear() && dueDate.getMonth() === now.getMonth();
   });
+
+  // Chỉ 1 kỳ thanh toán duy nhất
+// const paymentSchedule = [
+//   {
+//     id: payments[0]?.id || 0, // nếu backend trả id thì dùng, không thì tự tạo
+//     dueDate: contractEnd,      // hạn thanh toán = ngày kết thúc hợp đồng
+//     amountDue: totalCost,      // tổng tiền hợp đồng
+//     paymentStatus: payments[0]?.paymentStatus || "Pending", // trạng thái hiện tại
+//   },
+// ];
+
 
   const currentStatus = currentMonthPayment ? formatPaymentStatus(currentMonthPayment.paymentStatus) : "Chưa có kỳ thanh toán";
 
@@ -83,7 +115,8 @@ const handleStripe = async (paymentId: number) => {
   try {
     const result = await createStripeSession({
       applicationId,  
-      paymentId,     
+      paymentId,
+      amountOverride: totalCost,     
     }).unwrap();
     
     window.location.href = result.url;
@@ -108,17 +141,36 @@ const handleStripe = async (paymentId: number) => {
           <h3 className="text-xl font-semibold text-gray-800 mb-4">Thông tin hợp đồng</h3>
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <p className="text-sm text-gray-600">Người thuê</p>
-                <p className="font-medium">{application.tenant?.name || "Chưa có"}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Thời gian thuê</p>
-                <p className="font-medium">
-                  {lease.startDate ? new Date(lease.startDate).toLocaleDateString("vi-VN") : "?"} →{" "}
-                  {lease.endDate ? new Date(lease.endDate).toLocaleDateString("vi-VN") : "?"}
-                </p>
-              </div>
+              
+            <div>
+              <p className="text-sm text-gray-600">Số ngày thuê</p>
+              <p className="font-medium">{days} ngày</p>
+            </div>
+
+            <div>
+              <p className="text-sm text-gray-600">Tổng tiền thuê (theo ngày)</p>
+              <p className="font-medium text-lg text-primary-600">
+                {rentCost.toLocaleString("vi-VN")} ₫
+              </p>
+            </div>
+
+            <div>
+              <p className="text-sm text-gray-600">Đặt cọc</p>
+              <p className="font-medium">{deposit.toLocaleString("vi-VN")} ₫</p>
+            </div>
+
+            <div>
+              <p className="text-sm text-gray-600">Phí hồ sơ</p>
+              <p className="font-medium">{applicationFee.toLocaleString("vi-VN")} ₫</p>
+            </div>
+<div>
+              <p className="text-sm text-gray-600 font-semibold">Tổng thanh toán</p>
+              <p className="font-bold text-xl text-green-700">
+                {totalCost.toLocaleString("vi-VN")} ₫
+              </p>
+            </div>
+
+
               <div>
                 <p className="text-sm text-gray-600">Giá thuê/tháng</p>
                 <p className="font-medium text-lg text-primary-600">
@@ -157,65 +209,74 @@ const handleStripe = async (paymentId: number) => {
                   <TableHead className="text-center">Thanh toán</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                {payments.length > 0 ? (
-                  payments.map((p: any) => (
-                    <TableRow key={p.id}>
-                      <TableCell>{new Date(p.dueDate).toLocaleDateString("vi-VN")}</TableCell>
-                      <TableCell className="font-medium">{formatCurrency(p.amountDue)}</TableCell>
-                      <TableCell>
-                        <span
-                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            p.paymentStatus === "Paid"
-                              ? "bg-green-100 text-green-800"
-                              : p.paymentStatus === "Overdue"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-yellow-100 text-yellow-800"
-                          }`}
-                        >
-                          {formatPaymentStatus(p.paymentStatus)}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {p.paymentStatus === "Paid" ? (
-                          <span className="inline-flex items-center gap-1 text-green-600 font-medium">
-                            <Check className="w-4 h-4" />
-                            Đã thanh toán
-                          </span>
-                        ) : (
-                          <div className="flex gap-2 justify-center">
-                            <Button
-                              onClick={() => handleVNPay(p.id)}
-                              disabled={loadingPaymentId === p.id.toString()}
-                              className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-bold shadow-lg text-xs"
-                              size="sm"
-                            >
-                              {loadingPaymentId === p.id.toString() ? "Đang tạo..." : "VNPay"}
-                            </Button>
+<TableBody>
+  {payments.length > 0 ? (
+    // Chỉ lấy 1 kỳ duy nhất (ví dụ kỳ hiện tại)
+    (() => {
+      const p = payments[0]; // hoặc tìm kỳ hiện tại
+      return (
+        <TableRow key={p.id}>
+          <TableCell>{new Date(p.dueDate).toLocaleDateString("vi-VN")}</TableCell>
+          <TableCell className="font-medium">
+            {/* Hiển thị số tiền dựa trên tổng hợp hợp đồng / số ngày người dùng đặt */}
+            {formatCurrency(totalCost)}
 
-                            <Button
-                              onClick={() => handleStripe(p.id)}
-                              disabled={loadingPaymentId === p.id.toString()}
-                              variant="outline"
-                              className="border-purple-600 text-purple-600 hover:bg-purple-50 font-bold text-xs"
-                              size="sm"
-                            >
-                              <CreditCard className="w-4 h-4 mr-1" />
-                              Stripe
-                            </Button>
-                          </div>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={4} className="text-center text-gray-500 py-8">
-                      Chưa có kỳ thanh toán nào
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
+          </TableCell>
+          <TableCell>
+            <span
+              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                p.paymentStatus === "Paid"
+                  ? "bg-green-100 text-green-800"
+                  : p.paymentStatus === "Overdue"
+                  ? "bg-red-100 text-red-800"
+                  : "bg-yellow-100 text-yellow-800"
+              }`}
+            >
+              {formatPaymentStatus(p.paymentStatus)}
+            </span>
+          </TableCell>
+          <TableCell className="text-center">
+{p.paymentStatus === "Paid" ? (
+              <span className="inline-flex items-center gap-1 text-green-600 font-medium">
+                <Check className="w-4 h-4" />
+                Đã thanh toán
+              </span>
+            ) : (
+              <div className="flex gap-2 justify-center">
+                <Button
+                  onClick={() => handleVNPay(p.id)}
+                  disabled={loadingPaymentId === p.id.toString()}
+                  className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-bold shadow-lg text-xs"
+                  size="sm"
+                >
+                  {loadingPaymentId === p.id.toString() ? "Đang tạo..." : "VNPay"}
+                </Button>
+
+                <Button
+                  onClick={() => handleStripe(p.id)}
+                  disabled={loadingPaymentId === p.id.toString()}
+                  variant="outline"
+                  className="border-purple-600 text-purple-600 hover:bg-purple-50 font-bold text-xs"
+                  size="sm"
+                >
+                  <CreditCard className="w-4 h-4 mr-1" />
+                  Stripe
+                </Button>
+              </div>
+            )}
+          </TableCell>
+        </TableRow>
+      );
+    })()
+  ) : (
+    <TableRow>
+      <TableCell colSpan={4} className="text-center text-gray-500 py-8">
+        Chưa có kỳ thanh toán nào
+      </TableCell>
+    </TableRow>
+  )}
+</TableBody>
+
             </Table>
           </div>
         </div>

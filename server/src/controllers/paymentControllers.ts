@@ -49,8 +49,11 @@ export const createStripeCheckoutSession = async (req: Request, res: Response) =
       });
     }
 
-    // amountDue giờ là Decimal → chuyển thành number (Prisma trả về Decimal)
-    const amountInVND = Number(payment.amountDue); // an toàn vì đã là Decimal trong DB
+const amountOverride = req.body.amountOverride;
+const amountInVND = amountOverride
+  ? Number(amountOverride)
+  : Number(payment.amountDue);
+
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -129,7 +132,8 @@ console.log("Raw body length:", req.body.length);
             where: { id: Number(paymentId) },
             data: {
               paymentStatus: "Paid",
-              amountPaid: session.amount_total! / 100,
+              amountPaid: session.amount_total!,
+              amountDue: session.amount_total!,
               paymentDate: new Date(),
               stripePaymentId: session.id,
             },

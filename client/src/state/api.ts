@@ -262,15 +262,16 @@ export const api = createApi({
     }),
 
     createStripeSession: build.mutation<
-      { url: string },
-      { applicationId: number; paymentId: number }
-    >({
-      query: ({ applicationId, paymentId }) => ({
-        url: `/payment/applications/${applicationId}/pay/stripe`,
-        method: "POST",
-        body: { paymentId },
-      }),
-    }),
+  { url: string },
+  { applicationId: number; paymentId: number; amountOverride?: number } 
+>({
+  query: ({ applicationId, paymentId, amountOverride }) => ({
+    url: `/payment/applications/${applicationId}/pay/stripe`,
+    method: "POST",
+    body: { paymentId, amountOverride }, 
+  }),
+}),
+
 
     // === MANAGER ENDPOINTS ===
     getManagerProperties: build.query<Property[], string>({

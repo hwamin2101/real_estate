@@ -11,6 +11,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  useGetApplicationQuery,
+  useCreateVNPayPaymentMutation,
+  useCreateStripeSessionMutation,
+  useGetApplicationPaymentScheduleQuery,
+} from "@/state/api";
 import { useGetApplicationsQuery } from "@/state/api";
 import { fetchAuthSession } from "aws-amplify/auth";
 import Image from "next/image";
@@ -18,7 +24,9 @@ import { skipToken } from "@reduxjs/toolkit/query";
 
 const ApprovedProperties = () => {
   const [managerId, setManagerId] = useState<string | null>(null);
+  const [paymentsMap, setPaymentsMap] = useState<Record<number, any[]>>({});
 
+  // fetch manager session
   useEffect(() => {
     const fetchManager = async () => {
       try {
@@ -32,10 +40,34 @@ const ApprovedProperties = () => {
     fetchManager();
   }, []);
 
-  // Adjust query to handle string managerId (assuming API accepts string userId)
+  // get applications
   const { data: applications, isLoading } = useGetApplicationsQuery(
     managerId ? { userId: managerId, userType: "manager" } : skipToken
   );
+
+  // fetch payments for approved applications
+  useEffect(() => {
+    if (!applications) return;
+
+    const approvedApps = applications.filter(app => app.status === "Approved");
+
+    if (!approvedApps.length) return;
+
+    const fetchPayments = async () => {
+      const map: Record<number, any[]> = {};
+      for (const app of approvedApps) {
+        try {
+          const result = await fetchApplicationPayments(app.id); 
+          map[app.id] = result ?? [];
+        } catch {
+          map[app.id] = [];
+        }
+      }
+      setPaymentsMap(map);
+    };
+
+    fetchPayments();
+  }, [applications]); // dependency là `applications` chứ không phải `approvedApps`
 
   if (isLoading || !managerId) return <Loading />;
 
@@ -43,20 +75,26 @@ const ApprovedProperties = () => {
     (app: any) => app.status === "Approved"
   );
 
-  // Function to get payment status (fallback to lease data if available)
+  // getPaymentStatus logic giữ nguyên
   const getPaymentStatus = (app: any) => {
-    // Check if payments are included in the lease data
-    if (app.lease?.payments && app.lease.payments.length > 0) {
-      const currentDate = new Date();
-      const currentMonthPayment = app.lease.payments.find(
-        (payment: any) =>
-          new Date(payment.dueDate).getMonth() === currentDate.getMonth() &&
-          new Date(payment.dueDate).getFullYear() === currentDate.getFullYear()
-      );
-      return currentMonthPayment?.paymentStatus || "Not Paid";
+    const payments = paymentsMap[app.id] || [];
+    const currentDate = new Date();
+    const currentMonthPayment = payments.find(
+      (p: any) =>
+        new Date(p.dueDate).getMonth() === currentDate.getMonth() &&
+        new Date(p.dueDate).getFullYear() === currentDate.getFullYear()
+    );
+    if (!currentMonthPayment) return "Chưa có kỳ thanh toán";
+
+    switch (currentMonthPayment.paymentStatus) {
+      case "Paid": return "Đã thanh toán";
+      case "Pending": return "Đang xử lý";
+      case "PartiallyPaid": return "Thanh toán một phần";
+      case "Overdue": return "Quá hạn";
+      default: return currentMonthPayment.paymentStatus;
     }
-    return "No Data"; // Fallback if payments are not included
   };
+
 
   return (
     <div className="dashboard-container">
@@ -133,25 +171,20 @@ const ApprovedProperties = () => {
                     </TableCell>
 
                     <TableCell>
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          getPaymentStatus(app) === "Paid"
-                            ? "bg-green-100 text-green-700"
-                            : getPaymentStatus(app) === "Pending"
-                            ? "bg-yellow-100 text-yellow-700"
-                            : "bg-red-100 text-red-700"
-                        }`}
-                      >
-                        {getPaymentStatus(app) === "Paid"
-                          ? "Đã thanh toán"
-                          : getPaymentStatus(app) === "Pending"
-                          ? "Đang xử lý"
-                          : getPaymentStatus(app) === "Not Paid"
-                          ? "Chưa thanh toán"
-                          : "Không có dữ liệu"}
-                      </span>
-                    </TableCell>
-
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        getPaymentStatus(app) === "Đã thanh toán"
+                          ? "bg-green-100 text-green-700"
+                          : getPaymentStatus(app) === "Đang xử lý"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : getPaymentStatus(app) === "Quá hạn"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-gray-100 text-gray-700"
+                      }`}
+                    >
+                      {getPaymentStatus(app)}
+                    </span>
+                  </TableCell>
                     <TableCell>
                       {app.tenant.phoneNumber || "N/A"}
                     </TableCell>
@@ -173,3 +206,7 @@ const ApprovedProperties = () => {
 };
 
 export default ApprovedProperties;
+
+function fetchApplicationPayments(id: any) {
+  throw new Error("Function not implemented.");
+}

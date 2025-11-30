@@ -116,16 +116,33 @@ const PropertyTenants = () => {
   }
 
   // === HELPER FUNCTIONS ===
-  const getCurrentMonthPaymentStatus = (leaseId: number) => {
-    const currentDate = new Date();
-    const currentMonthPayment = payments?.find(
-      (payment) =>
-        payment.leaseId === leaseId &&
-        new Date(payment.dueDate).getMonth() === currentDate.getMonth() &&
-        new Date(payment.dueDate).getFullYear() === currentDate.getFullYear()
+const getCurrentMonthPaymentStatus = (leaseId: number) => {
+  const currentDate = new Date();
+
+  // Lấy tất cả payment thuộc lease này
+  const leasePayments = payments?.filter((p) => p.leaseId === leaseId) || [];
+
+  // Nếu chưa có lịch thanh toán nào
+  if (leasePayments.length === 0) return "Chưa tạo lịch thanh toán";
+
+  // Lấy payment tháng hiện tại
+  const currentMonthPayment = leasePayments.find((p) => {
+    const due = new Date(p.dueDate);
+    return (
+      due.getMonth() === currentDate.getMonth() &&
+      due.getFullYear() === currentDate.getFullYear()
     );
-    return currentMonthPayment?.paymentStatus || "Chưa thanh toán";
-  };
+  });
+
+  // Nếu hợp đồng chưa có kỳ thanh toán tháng này
+  if (!currentMonthPayment) {
+    return "Chưa đến kỳ thanh toán";
+  }
+
+  // Có payment tháng này → trả trạng thái thật
+  return currentMonthPayment.paymentStatus || "Chưa thanh toán";
+};
+
 
   const formatCurrency = (amount: number | undefined | null): string => {
     if (amount === undefined || amount === null) return "0 ₫";
@@ -495,18 +512,26 @@ const PropertyTenants = () => {
                       {formatCurrency(lease.rentAmount || property.pricePerMonth)}
                     </TableCell>
                     <TableCell>
-                      <span
-                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          getCurrentMonthPaymentStatus(lease.id) === "Đã thanh toán"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {getCurrentMonthPaymentStatus(lease.id) === "Đã thanh toán" ? (
-                          <Check className="w-3 h-3 mr-1" />
-                        ) : null}
-                        {getCurrentMonthPaymentStatus(lease.id)}
-                      </span>
+                      {(() => {
+                      const status = getCurrentMonthPaymentStatus(lease.id);
+
+                      const styles = {
+                        "Đã thanh toán": "bg-green-100 text-green-800",
+                        "Chưa thanh toán": "bg-red-100 text-red-800",
+                        "Chưa đến kỳ thanh toán": "bg-gray-100 text-gray-800",
+                        "Chưa tạo lịch thanh toán": "bg-yellow-100 text-yellow-800",
+                      } as const;
+
+                      return (
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${styles[status as keyof typeof styles] || "bg-gray-100 text-gray-800"}`}
+                        >
+                          {status === "Đã thanh toán" && <Check className="w-3 h-3 mr-1" />}
+                          {status}
+                        </span>
+                      );
+                    })()}
+
                     </TableCell>
                   </TableRow>
                 ))}

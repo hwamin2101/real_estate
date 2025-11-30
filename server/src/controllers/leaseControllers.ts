@@ -112,11 +112,17 @@ export const getApplicationPaymentSchedule = async (
       });
 
       if (!existing) {
+        const amountDueValue =
+    createdPayments.length === 0 && (req.query.amountOverride || req.body.amountOverride)
+      ? Number(req.query.amountOverride || req.body.amountOverride)
+      : rentAmount;
         // TẠO THẬT TRONG DB
         const newPayment = await prisma.payment.create({
+        
+
           data: {
             leaseId: lease.id,
-            amountDue: rentAmount,
+            amountDue: amountDueValue,
             amountPaid: 0,
             dueDate,
             paymentStatus: "Pending",
