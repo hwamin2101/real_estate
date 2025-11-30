@@ -89,7 +89,7 @@ export const getStats = async (req: Request, res: Response): Promise<void> => {
         email: payment.lease!.tenant.email,
         phoneNumber: payment.lease!.tenant.phoneNumber,
         date: payment.paymentDate!.toISOString().split("T")[0],
-        amount: payment.amountPaid,
+        amount: payment.amountDue,
         status: payment.paymentStatus,
       }));
 

@@ -625,9 +625,11 @@ const StatsPage = () => {
           value={stats.totalProperties}
           icon={<Building className="h-6 w-6 text-blue-600 dark:text-blue-400" />}
           iconBgColor="bg-blue-50 dark:bg-blue-900/20"
-          actionText="Xem chi tiết"
-          actionIcon={<Eye className="h-4 w-4" />}
+          
+          actionIcon={<Eye className="h-4 w-4  " />}
+         
         />
+        
 
         <KPICard
           title="ĐẶT PHÒNG HÔM NAY"
@@ -636,7 +638,7 @@ const StatsPage = () => {
             <Calendar className="h-6 w-6 text-orange-600 dark:text-orange-400" />
           }
           iconBgColor="bg-orange-50 dark:bg-orange-900/20"
-          actionText="Xem tất cả đơn"
+          
           actionIcon={<Eye className="h-4 w-4" />}
         />
 

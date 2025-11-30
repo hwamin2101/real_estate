@@ -184,14 +184,14 @@ const handleStripe = async (paymentId: number) => {
                           </span>
                         ) : (
                           <div className="flex gap-2 justify-center">
-                            <Button
+                            {/* <Button
                               onClick={() => handleVNPay(p.id)}
                               disabled={loadingPaymentId === p.id.toString()}
                               className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-bold shadow-lg text-xs"
                               size="sm"
                             >
                               {loadingPaymentId === p.id.toString() ? "Đang tạo..." : "VNPay"}
-                            </Button>
+                            </Button> */}
 
                             <Button
                               onClick={() => handleStripe(p.id)}
