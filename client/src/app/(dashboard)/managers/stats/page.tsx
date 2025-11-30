@@ -197,7 +197,7 @@ const OccupancyChart: React.FC<{
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-purple-500"></div>
               <span className="text-sm text-gray-600 dark:text-gray-400">
-                Đã thanh toán
+                Căn hộ đã thuê
               </span>
             </div>
             <span className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -208,7 +208,7 @@ const OccupancyChart: React.FC<{
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-indigo-100 dark:bg-indigo-900"></div>
               <span className="text-sm text-gray-600 dark:text-gray-400">
-                Chưa thanh toán
+                Căn hộ chưa thuê
               </span>
             </div>
             <span className="text-sm font-semibold text-gray-900 dark:text-white">
